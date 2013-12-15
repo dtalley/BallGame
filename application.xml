@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/3.7">
+  <id>com.orionark.games.BallGame</id>
+  <filename>BallGame</filename>
+  <name>
+    <text xml:lang="en">Ball Game</text>
+  </name>
+  <description>
+    <text xml:lang="en">Ball Game.</text>
+  </description>
+  <copyright>Copyright (c) 2013 Orionark Games</copyright>
+  <versionLabel>Initial</versionLabel>
+  <versionNumber>0.1</versionNumber>
+  <supportedProfiles>desktop extendedDesktop</supportedProfiles>
+  <initialWindow>
+    <title>Ball Game</title>
+    <content>BallGame.swf</content>
+    <systemChrome>standard</systemChrome>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <resizable>false</resizable>
+    <minimizable>false</minimizable>
+    <maximizable>false</maximizable>
+    <renderMode>direct</renderMode>
+  </initialWindow>
+</application>
