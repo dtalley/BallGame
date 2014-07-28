@@ -29,7 +29,7 @@ package src.game.gadget
         var balls:Vector.<Ball> = new Vector.<Ball>();
         balls.push(ball);
         
-        var current:Tile = ball.tile.left;
+        var current:Tile = ball.tile.bottom;
         if ( current )
         {
           current.modifyBalls(function(curball:Ball):void {
@@ -63,10 +63,25 @@ package src.game.gadget
         
         if ( balls.length == 2 )
         {
-          if ( balls[0].type != Ball.PURPLE && balls[1].type != Ball.PURPLE && balls[0].type != balls[1].type )
+          if ( balls[0].type < 3 && balls[1].type < 3 )
           {
-            balls[1].removeFromTile();
-            ball.type = Ball.PURPLE;
+            if ((ball.type == Ball.RED && balls[1].type == Ball.GREEN) || (ball.type == Ball.GREEN && balls[1].type == Ball.RED))
+            {
+              ball.type = Ball.YELLOW;
+            }
+            else if ((ball.type == Ball.GREEN && balls[1].type == Ball.BLUE) || (ball.type == Ball.BLUE && balls[1].type == Ball.GREEN))
+            {
+              ball.type = Ball.CYAN;
+            }
+            else if ((ball.type == Ball.BLUE && balls[1].type == Ball.RED) || (ball.type == Ball.RED && balls[1].type == Ball.BLUE))
+            {
+              ball.type = Ball.PURPLE;
+            }
+            
+            if (ball.type >= 3)
+            {
+              balls[1].removeFromTile();
+            }
           }
         }
         else if ( balls.length > 2 )

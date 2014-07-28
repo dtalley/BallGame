@@ -12,9 +12,12 @@ package src.game
    */
   public class Ball extends Sprite 
   {
-    public static const PURPLE:uint = 0;
-    public static const BLUE:uint = 1;
-    public static const RED:uint = 2;
+    public static const BLUE:uint = 0;
+    public static const RED:uint = 1;
+    public static const GREEN:uint = 2;
+    public static const PURPLE:uint = 3;
+    public static const YELLOW:uint = 4;
+    public static const CYAN:uint = 5;
     
     private var m_base:Image;
     
@@ -25,26 +28,48 @@ package src.game
     
     private var m_direction:Point = new Point();
     
-    public function Ball(type:uint = PURPLE) 
+    public function Ball(type:uint = RED) 
     {
       this.touchable = false;
       m_type = type;
-      if ( type == PURPLE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "ball_purple"));
-      }
-      else if ( type == BLUE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "ball_blue"));
-      }
-      else if ( type == RED )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "ball_red"));
-      }
+      configure();
       this.addChild(m_base);
       m_base.smoothing = TextureSmoothing.NONE;
       
       this.visible = false;
+    }
+    
+    private function configure():void
+    {
+      if (!m_base)
+      {
+        m_base = new Image(TextureManager.Get("atlas", "ball_red"));
+      }
+      
+      if ( m_type == PURPLE )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_purple");
+      }
+      else if ( m_type == BLUE )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_blue");
+      }
+      else if ( m_type == RED )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_red");
+      }
+      else if ( m_type == GREEN )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_green");
+      }
+      else if ( m_type == YELLOW )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_yellow");
+      }
+      else if ( m_type == CYAN )
+      {
+        m_base.texture = TextureManager.Get("atlas", "ball_cyan");
+      }
     }
     
     public function set tile(val:Tile):void
@@ -237,18 +262,7 @@ package src.game
     public function set type(val:uint):void
     {
       m_type = val;
-      if ( m_type == PURPLE )
-      {
-        m_base.texture = TextureManager.Get("atlas", "ball_purple");
-      }
-      else if ( m_type == BLUE )
-      {
-        m_base.texture = TextureManager.Get("atlas", "ball_blue");
-      }
-      else if ( m_type == RED )
-      {
-        m_base.texture = TextureManager.Get("atlas", "ball_red");
-      }
+      configure();
     }
     
     public function get type():uint

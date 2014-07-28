@@ -10,10 +10,13 @@ package src.game.controller
   import src.game.Board;
   import src.game.ButtonTree;
   import src.game.gadget.Combine;
+  import src.game.gadget.Dispurse;
   import src.game.gadget.Expand;
   import src.game.gadget.Gadget;
   import src.game.gadget.Goal;
   import src.game.gadget.Phase;
+  import src.game.gadget.Rally;
+  import src.game.gadget.Reverse;
   import src.game.Panel;
   import src.game.Tile;
   import src.game.utils.ConfigManager;
@@ -45,7 +48,10 @@ package src.game.controller
     private var m_goalEdit:ButtonTree;
     private var m_gadgetsEdit:ButtonTree;
     
-    private var m_backToMain:ButtonTree;    
+    private var m_backToMain:ButtonTree;
+    private var m_reverseEdit:ButtonTree;
+    private var m_rallyEdit:ButtonTree;
+    private var m_dispurseEdit:ButtonTree;
     private var m_phaseEdit:ButtonTree;
     private var m_combineEdit:ButtonTree;
     private var m_expandEdit:ButtonTree;
@@ -98,6 +104,9 @@ package src.game.controller
       m_gadgetsEdit = m_tree.createChild("gear", ButtonTree.PUSH);
       
       m_backToMain = m_gadgetsEdit.createChild("left", ButtonTree.POP);
+      m_reverseEdit = m_gadgetsEdit.createChild("reverse", ButtonTree.SELECTABLE);
+      m_rallyEdit = m_gadgetsEdit.createChild("rally", ButtonTree.SELECTABLE);
+      m_dispurseEdit = m_gadgetsEdit.createChild("dispurse", ButtonTree.SELECTABLE);
       m_phaseEdit = m_gadgetsEdit.createChild("phase", ButtonTree.SELECTABLE);
       m_combineEdit = m_gadgetsEdit.createChild("combine", ButtonTree.SELECTABLE);
       m_expandEdit = m_gadgetsEdit.createChild("expand", ButtonTree.SELECTABLE);
@@ -217,6 +226,18 @@ package src.game.controller
       {
         handleGadgetEdit(tile, touch.phase, Expand);
       }
+      else if ( m_reverseEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Reverse);
+      }
+      else if ( m_rallyEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Rally);
+      }
+      else if ( m_dispurseEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Dispurse);
+      }
     }
     
     private function handleGadgetEdit(tile:Tile, phase:String, type:Class):void
@@ -329,13 +350,25 @@ package src.game.controller
         }
         else if ( ball )
         {          
-          if ( ball.type == Ball.PURPLE )
+          if ( ball.type == Ball.RED )
+          {
+            ball.type = Ball.GREEN;
+          }
+          else if ( ball.type == Ball.GREEN )
           {
             ball.type = Ball.BLUE;
           }
           else if ( ball.type == Ball.BLUE )
           {
-            ball.type = Ball.RED;
+            ball.type = Ball.PURPLE;
+          }
+          else if ( ball.type == Ball.PURPLE )
+          {
+            ball.type = Ball.YELLOW;
+          }
+          else if ( ball.type == Ball.YELLOW )
+          {
+            ball.type = Ball.CYAN;
           }
           else
           {

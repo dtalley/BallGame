@@ -12,27 +12,20 @@ package src.game.gadget
     
     private var m_type:uint;
     
-    public function Goal(type:uint = Ball.PURPLE) 
+    public function Goal(type:uint = Ball.RED) 
     {
       m_type = type;
-      if ( type == Ball.PURPLE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_goal_purple"));
-      }
-      else if ( type == Ball.BLUE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_goal_blue"));
-      }
-      else if ( type == Ball.RED )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_goal_red"));
-      }
+      configure();
       this.addChild(m_base);
     }
     
-    public function set type(val:uint):void
+    private function configure():void
     {
-      m_type = val;
+      if (!m_base)
+      {
+        m_base = new Image(TextureManager.Get("atlas", "gadget_goal_red"));
+      }
+      
       if ( m_type == Ball.PURPLE )
       {
         m_base.texture = TextureManager.Get("atlas", "gadget_goal_purple");
@@ -45,6 +38,24 @@ package src.game.gadget
       {
         m_base.texture = TextureManager.Get("atlas", "gadget_goal_red");
       }
+      else if ( m_type == Ball.GREEN )
+      {
+        m_base.texture = TextureManager.Get("atlas", "gadget_goal_green");
+      }
+      else if ( m_type == Ball.YELLOW )
+      {
+        m_base.texture = TextureManager.Get("atlas", "gadget_goal_yellow");
+      }
+      else if ( m_type == Ball.CYAN )
+      {
+        m_base.texture = TextureManager.Get("atlas", "gadget_goal_cyan");
+      }
+    }
+    
+    public function set type(val:uint):void
+    {
+      m_type = val;
+      configure();
     }
     
     public function get type():uint
@@ -54,17 +65,29 @@ package src.game.gadget
     
     public override function tap():void
     {
-      if ( m_type == Ball.PURPLE )
+      if ( m_type == Ball.RED )
+      {
+        this.type = Ball.GREEN;
+      }
+      else if ( m_type == Ball.GREEN )
       {
         this.type = Ball.BLUE;
       }
       else if ( m_type == Ball.BLUE )
       {
-        this.type = Ball.RED;
+        this.type = Ball.PURPLE;
+      }
+      else if ( m_type == Ball.PURPLE )
+      {
+        this.type = Ball.YELLOW;
+      }
+      else if ( m_type == Ball.YELLOW )
+      {
+        this.type = Ball.CYAN;
       }
       else
       {
-        this.type = Ball.PURPLE;
+        this.type = Ball.RED;
       }
     }
     

@@ -12,9 +12,9 @@ package src.game
     public static const BLANK:uint = 0;
     public static const NORMAL:uint = 1;
     public static const SELECTABLE:uint = 2;
-    public static const TOGGLE:uint = 3;
-    public static const PUSH:uint = 4;
-    public static const POP:uint = 5;
+    public static const TOGGLE:uint = 4;
+    public static const PUSH:uint = 8;
+    public static const POP:uint = 16;
     
     private var m_panel:Panel;
     private var m_parent:ButtonTree;
@@ -142,41 +142,30 @@ package src.game
         return;
       }
       
-      if ( m_mode == ButtonTree.PUSH )
+      if ( m_mode & ButtonTree.PUSH )
       {
-        m_button.activate();
+        //m_button.activate();
         
         dispatchEvent(new Event("push"));
       }
-      else if ( m_mode == ButtonTree.POP )
+      else if ( m_mode & ButtonTree.POP )
       {
-        m_button.activate();
+        //m_button.activate();
         
         dispatchEvent(new Event("pop"));
       }
-      else if ( m_mode == ButtonTree.NORMAL )
+      else if ( m_mode & ButtonTree.NORMAL )
       {
         m_button.activate();
         
         dispatchEvent(new Event("activated"));
       }
-      else if ( m_mode == ButtonTree.SELECTABLE )
+      else if ( m_mode & ButtonTree.SELECTABLE )
       {
         if ( !m_button.isSelected )
         {
           m_button.select();
           dispatchEvent(new Event("selected"));
-        }
-      }
-      else if ( m_mode == ButtonTree.TOGGLE )
-      {
-        if ( !m_button.isSelected )
-        {
-          m_button.select();
-        }
-        else
-        {
-          m_button.deselect();
         }
       }
     }
@@ -239,7 +228,7 @@ package src.game
         return false;
       }
       
-      if ( ( m_mode == ButtonTree.TOGGLE || m_mode == ButtonTree.SELECTABLE ) && m_button.isSelected )
+      if ( m_mode == ButtonTree.SELECTABLE && m_button.isSelected )
       {
         return true;
       }

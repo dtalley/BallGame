@@ -85,6 +85,11 @@ package src.game
         e.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.deactivate);
       }
       
+      if (m_selected)
+      {
+        return;
+      }
+      
       m_base.texture = TextureManager.Get("atlas", "panel_button_out");
     }
     
