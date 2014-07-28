@@ -43,6 +43,8 @@ package src.game.controller
     private var m_holdTile:Tile;
     private var m_accumulator:Number = 0;
     
+    private var m_moved:Boolean = false;
+    
     public function Planner(board:Board, panel:Panel) 
     {
       m_board = board;
@@ -97,6 +99,10 @@ package src.game.controller
       for ( var i:uint = 0; i < count; i++ )
       {
         m_tiles[i].reset();
+      }
+      for ( i = 0; i < count; i++ )
+      {
+        m_tiles[i].resetPlan();
       }
       
       count = m_balls.length;
@@ -163,6 +169,8 @@ package src.game.controller
             m_holdTile = tile;
           }
         }
+        
+        m_moved = true;
       }
       else if ( phase == "ended" )
       {
@@ -191,6 +199,13 @@ package src.game.controller
           this.dispatchEvent(new Event("startSimulator"));
           return;
         }
+        
+        if (tile.hasGadget && !m_moved)
+        {
+          tile.gadget.planTap();
+        }
+        
+        m_moved = false;
       }
       
       if ( m_reverse.isSelected )
@@ -240,10 +255,6 @@ package src.game.controller
         if ( gadget == m_placingGadget )
         {
           m_placingGadget = new type();
-        }
-        else if( gadget )
-        {          
-          gadget.tap();
         }
       }
     }

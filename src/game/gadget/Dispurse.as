@@ -12,7 +12,7 @@ package src.game.gadget
   {
     private var m_base:Image;
     
-    public function Dispurse() 
+    public function Dispurse(data:uint = 0) 
     {
       m_base = new Image(TextureManager.Get("atlas", "gadget_dispurse"));
       this.addChild(m_base);

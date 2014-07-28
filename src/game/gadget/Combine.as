@@ -11,7 +11,7 @@ package src.game.gadget
   {
     private var m_base:Image;
     
-    public function Combine() 
+    public function Combine(data:uint = 0) 
     {
       m_base = new Image(TextureManager.Get("atlas", "gadget_combine"));
       this.addChild(m_base);

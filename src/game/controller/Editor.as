@@ -131,6 +131,7 @@ package src.game.controller
     
     private function loadFileSelected(e:Event):void
     {
+      m_board.clearTiles();
       var file:File = e.currentTarget as File;
       var fs:FileStream = new FileStream();
       fs.open(file, FileMode.READ);
@@ -352,13 +353,13 @@ package src.game.controller
         {          
           if ( ball.type == Ball.RED )
           {
-            ball.type = Ball.GREEN;
-          }
-          else if ( ball.type == Ball.GREEN )
-          {
             ball.type = Ball.BLUE;
           }
           else if ( ball.type == Ball.BLUE )
+          {
+            ball.type = Ball.PURPLE;
+          }
+          /*else if ( ball.type == Ball.BLUE )
           {
             ball.type = Ball.PURPLE;
           }
@@ -369,7 +370,7 @@ package src.game.controller
           else if ( ball.type == Ball.YELLOW )
           {
             ball.type = Ball.CYAN;
-          }
+          }*/
           else
           {
             ball.removeFromTile();

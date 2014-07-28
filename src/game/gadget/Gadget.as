@@ -55,6 +55,11 @@ package src.game.gadget
       
     }
     
+    public function planTap():void
+    {
+      
+    }
+    
     public function act(ball:Ball, percent:Number):void
     {
       

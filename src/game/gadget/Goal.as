@@ -50,6 +50,10 @@ package src.game.gadget
       {
         m_base.texture = TextureManager.Get("atlas", "gadget_goal_cyan");
       }
+      else if ( m_type == Ball.WHITE )
+      {
+        m_base.texture = TextureManager.Get("atlas", "gadget_goal_gray");
+      }
     }
     
     public function set type(val:uint):void
@@ -67,13 +71,13 @@ package src.game.gadget
     {
       if ( m_type == Ball.RED )
       {
-        this.type = Ball.GREEN;
-      }
-      else if ( m_type == Ball.GREEN )
-      {
         this.type = Ball.BLUE;
       }
       else if ( m_type == Ball.BLUE )
+      {
+        this.type = Ball.RED;
+      }
+      /*else if ( m_type == Ball.BLUE )
       {
         this.type = Ball.PURPLE;
       }
@@ -85,6 +89,10 @@ package src.game.gadget
       {
         this.type = Ball.CYAN;
       }
+      else if ( m_type == Ball.CYAN )
+      {
+        this.type = Ball.WHITE;
+      }*/
       else
       {
         this.type = Ball.RED;

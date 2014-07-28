@@ -18,6 +18,7 @@ package src.game
     public static const PURPLE:uint = 3;
     public static const YELLOW:uint = 4;
     public static const CYAN:uint = 5;
+    public static const WHITE:uint = 6;
     
     private var m_base:Image;
     

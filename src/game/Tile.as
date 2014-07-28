@@ -50,8 +50,11 @@ package src.game
     
     private var m_gadget:Gadget = null;
     
-    public function Tile(open:Boolean) 
+    private var m_board:Board = null;
+    
+    public function Tile(board:Board, open:Boolean) 
     {
+      m_board = board;
       m_open = m_valid = open;
       
       var blank:Texture = null;
@@ -111,6 +114,8 @@ package src.game
     
     public function reset():void
     {
+      clearGadget();
+      
       while ( m_balls.length > 0 )
       {
         this.removeBallAt(0);
@@ -132,6 +137,14 @@ package src.game
         m_defaultGadget.tile = this;
       }
       
+      if ( m_gadget )
+      {
+        m_gadget.reset();
+      }
+    }
+    
+    public function resetPlan():void
+    {
       if ( m_planGadget )
       {
         if ( m_gadget && m_gadget != m_planGadget )
@@ -150,11 +163,7 @@ package src.game
     
     public function clearPlan():void
     {
-      if ( m_planGadget && m_gadget == m_planGadget )
-      {
-        clearGadget();
-        m_planGadget = null;
-      }
+      m_planGadget = null;
     }
     
     public function modifyBalls(callback:Function):void
@@ -954,6 +963,11 @@ package src.game
     public function get isValid():Boolean
     {
       return m_valid;
+    }
+    
+    public function get board():Board
+    {
+      return m_board;
     }
   }
 

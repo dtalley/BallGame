@@ -12,7 +12,7 @@ package src.game.gadget
   {
     private var m_base:Image;
     
-    public function Rally() 
+    public function Rally(data:uint = 0) 
     {
       m_base = new Image(TextureManager.Get("atlas", "gadget_rally"));
       this.addChild(m_base);

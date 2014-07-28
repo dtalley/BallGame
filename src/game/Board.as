@@ -32,7 +32,7 @@ package src.game
       {
         for ( var j:int = 0 - padding; j < columns + padding; j++ )
         {
-          var tile:Tile = new Tile(MathX.within(i+1, 1, rows) && MathX.within(j+1, 1, columns));
+          var tile:Tile = new Tile(this, MathX.within(i+1, 1, rows) && MathX.within(j+1, 1, columns));
           this.addChild(tile);
           tile.x = j * tileSize;
           tile.y = i * tileSize;
