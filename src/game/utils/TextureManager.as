@@ -1,6 +1,8 @@
 package src.game.utils 
 {
   import flash.display.Bitmap;
+  import flash.display.BitmapData;
+  import flash.utils.ByteArray;
   import starling.textures.Texture;
   import flash.utils.Dictionary;
   import starling.textures.TextureAtlas;
@@ -12,9 +14,16 @@ package src.game.utils
   {
     private static var s_textures:Dictionary = new Dictionary();
     
-    public static function Create(name:String, image:Bitmap):Texture
+    public static function CreateFromATF(name:String, image:ByteArray, scale:Number):Texture
     {
-      var texture:Texture = Texture.fromBitmap(image, false);
+      var texture:Texture = Texture.fromAtfData(image, scale, false);
+      s_textures[name] = texture;
+      return texture;
+    }
+    
+    public static function CreateFromBitmap(name:String, image:BitmapData, scale:Number):Texture
+    {
+      var texture:Texture = Texture.fromBitmapData(image, false, false, scale);
       s_textures[name] = texture;
       return texture;
     }

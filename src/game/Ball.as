@@ -90,7 +90,7 @@ package src.game
         return;
       }
       
-      if ( m_tile.gadget )
+      if ( m_direction.length > 0 && m_tile.gadget )
       {
         m_tile.gadget.act(this, 1);
       }
@@ -191,10 +191,20 @@ package src.game
         
         m_target = m_tile.bottom;
       }
+      
+      if ( m_target && m_target.hasGadget )
+      {
+        m_target.gadget.permit(this);
+      }
     }
     
     public function moveFromSourceToTarget(percent:Number):void
     {
+      if ( m_tile == null )
+      {
+        return;
+      }
+      
       if ( m_target == null )
       {
         this.x = m_tile.x;

@@ -2,6 +2,7 @@ package src.game.gadget
 {
   import src.game.Ball;
   import src.game.Board;
+  import src.game.utils.ConfigManager;
   import src.game.utils.TextureManager;
   import starling.display.Image;
 	/**
@@ -18,8 +19,8 @@ package src.game.gadget
       this.addChild(m_base);
       
       m_base.alignPivot();
-      m_base.x = Board.tileSize / 2;
-      m_base.y = Board.tileSize / 2;
+      m_base.x = ConfigManager.TILE_SIZE / 2;
+      m_base.y = ConfigManager.TILE_SIZE / 2;
     }
     
     public override function tap():void
@@ -54,6 +55,16 @@ package src.game.gadget
     public override function reset():void
     {
       
+    }
+    
+    public override function get isMoveable():Boolean
+    {
+      return true;
+    }
+    
+    public override function get id():uint
+    {
+      return GadgetManager.s_gadgets.indexOf(Redirect);
     }
   }
 

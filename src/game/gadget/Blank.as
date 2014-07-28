@@ -29,5 +29,10 @@ package src.game.gadget
     {
       
     }
+    
+    public override function get id():uint
+    {
+      return GadgetManager.s_gadgets.indexOf(Blank);
+    }
   }
 }

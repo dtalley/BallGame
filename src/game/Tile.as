@@ -2,6 +2,7 @@ package src.game
 {
   import flash.events.IMEEvent;
   import src.game.gadget.Gadget;
+  import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import src.game.utils.TextureManager;
   import starling.display.Image;
@@ -42,6 +43,7 @@ package src.game
     private var m_balls:Vector.<Ball> = new Vector.<Ball>();
     
     private var m_defaultBall:Ball;
+    private var m_defaultBallType:uint;
     
     private var m_defaultGadget:Gadget;
     private var m_planGadget:Gadget;
@@ -71,8 +73,8 @@ package src.game
         m_wallImage.smoothing = TextureSmoothing.NONE;
         
         m_wallImage.alignPivot();
-        m_wallImage.x = Board.tileSize / 2;
-        m_wallImage.y = Board.tileSize / 2;
+        m_wallImage.x = ConfigManager.TILE_SIZE / 2;
+        m_wallImage.y = ConfigManager.TILE_SIZE / 2;
         
         this.addChild(m_baseImage);
       }
@@ -88,6 +90,7 @@ package src.game
       if ( m_balls.length > 0 )
       {
         m_defaultBall = m_balls[0];
+        m_defaultBallType = m_defaultBall.type;
       }
       
       m_defaultGadget = null;
@@ -116,6 +119,7 @@ package src.game
       if ( m_defaultBall )
       {
         m_defaultBall.tile = this;
+        m_defaultBall.type = m_defaultBallType;
       }
       
       if ( m_defaultGadget )
@@ -173,7 +177,7 @@ package src.game
       }
       m_gadget = gadget;
       m_gadget.tile = this;
-      this.addChild(m_gadget);
+      this.addChildAt(m_gadget, 1);
     }
     
     public function clearGadget():void
@@ -248,29 +252,31 @@ package src.game
     
     public function getRegion(x:Number, y:Number):uint
     {
-      if ( Math.sqrt(Math.pow((Board.tileSize / 2) - x, 2) + Math.pow((Board.tileSize / 2) - y, 2)) < 17 )
+      var wallSize:Number = ConfigManager.TILE_SIZE / 3;
+      
+      if ( Math.sqrt(Math.pow((ConfigManager.TILE_SIZE / 2) - x, 2) + Math.pow((ConfigManager.TILE_SIZE / 2) - y, 2)) < 17 )
       {
         return Tile.CENTER;
       }
-      else if ( x < 8 )
+      else if ( x < wallSize && y > wallSize && y < ConfigManager.TILE_SIZE - wallSize )
       {
         return L_WALL;
       }
-      else if ( y < 8 )
+      else if ( y < wallSize && x > wallSize && x < ConfigManager.TILE_SIZE -wallSize )
       {
         return T_WALL;
       }
-      else if ( x > Board.tileSize - 8 )
+      else if ( x > ConfigManager.TILE_SIZE - wallSize && y > wallSize && y < ConfigManager.TILE_SIZE - wallSize )
       {
         return R_WALL;
       }
-      else if ( y > Board.tileSize - 8 )
+      else if ( y > ConfigManager.TILE_SIZE - wallSize && x > wallSize && x < ConfigManager.TILE_SIZE - wallSize )
       {
         return B_WALL;
       }
-      else if ( x < Board.tileSize / 2 )
+      else if ( x < ConfigManager.TILE_SIZE / 2 )
       {
-        if ( y < Board.tileSize / 2 )
+        if ( y < ConfigManager.TILE_SIZE / 2 )
         {
           return TL_CORNER;
         }
@@ -278,7 +284,7 @@ package src.game
       }
       else
       {
-        if ( y < Board.tileSize / 2 )
+        if ( y < ConfigManager.TILE_SIZE / 2 )
         {
           return TR_CORNER;
         }
@@ -337,13 +343,16 @@ package src.game
         m_defaultWallConfiguration.clear();
         m_overrideWallConfiguration.clear();
         
-        if ( m_left && m_left.isOpen ) m_left.removeRightWall();
+        if ( m_left && m_left.isOpen && m_left.isValid ) m_left.removeRightWall();
         else if ( m_left ) placeLeftWall();
-        if ( m_top && m_top.isOpen ) m_top.removeBottomWall();
+        
+        if ( m_top && m_top.isOpen && m_top.isValid ) m_top.removeBottomWall();
         else if ( m_top ) placeTopWall();
-        if ( m_right && m_right.isOpen ) m_right.removeLeftWall();
+        
+        if ( m_right && m_right.isOpen && m_right.isValid ) m_right.removeLeftWall();
         else if ( m_right ) placeRightWall();
-        if ( m_bottom && m_bottom.isOpen ) m_bottom.removeTopWall();
+        
+        if ( m_bottom && m_bottom.isOpen && m_bottom.isValid ) m_bottom.removeTopWall();
         else if ( m_bottom ) placeBottomWall();
       }
     }
@@ -357,10 +366,15 @@ package src.game
     {
       if ( m_defaultWallConfiguration.isStale || m_overrideWallConfiguration.isStale )
       {
-        m_wallConfiguration.top = m_defaultWallConfiguration.top || m_overrideWallConfiguration.top;
-        m_wallConfiguration.right = m_defaultWallConfiguration.right || m_overrideWallConfiguration.right;
-        m_wallConfiguration.bottom = m_defaultWallConfiguration.bottom || m_overrideWallConfiguration.bottom;
-        m_wallConfiguration.left = m_defaultWallConfiguration.left || m_overrideWallConfiguration.left;
+        m_wallConfiguration.top = m_defaultWallConfiguration.top;
+        m_wallConfiguration.right = m_defaultWallConfiguration.right;
+        m_wallConfiguration.bottom = m_defaultWallConfiguration.bottom;
+        m_wallConfiguration.left = m_defaultWallConfiguration.left;
+        
+        m_wallConfiguration.tl = m_defaultWallConfiguration.tl;
+        m_wallConfiguration.tr = m_defaultWallConfiguration.tr;
+        m_wallConfiguration.br = m_defaultWallConfiguration.br;
+        m_wallConfiguration.bl = m_defaultWallConfiguration.bl;
         
         m_defaultWallConfiguration.lock();
         m_overrideWallConfiguration.lock();
@@ -369,18 +383,21 @@ package src.game
       return m_wallConfiguration;
     }
     
-    public function configure(wallChanges:Boolean = false):void
+    public function configure(wallChanges:Boolean = false, forLoad:Boolean = false):void
     {
       if ( wallChanges )
       {
-        if ( m_right ) m_overrideWallConfiguration.right = m_right.defaultWallConfiguration.left;
-        if ( m_bottom ) m_overrideWallConfiguration.bottom = m_bottom.defaultWallConfiguration.top;
-        if ( m_left ) m_overrideWallConfiguration.left = m_left.defaultWallConfiguration.right;
-        if ( m_top ) m_overrideWallConfiguration.top = m_top.defaultWallConfiguration.bottom;
-        
-        if ( !this.wallConfiguration.isStale )
+        if (!forLoad)
         {
-          return;
+          if ( m_right ) m_defaultWallConfiguration.right = m_right.defaultWallConfiguration.left && ( m_right.isOpen || ( m_open && !m_right.isOpen ) );
+          if ( m_bottom ) m_defaultWallConfiguration.bottom = m_bottom.defaultWallConfiguration.top && ( m_bottom.isOpen || ( m_open && !m_bottom.isOpen ) );
+          if ( m_left ) m_defaultWallConfiguration.left = m_left.defaultWallConfiguration.right && ( m_left.isOpen || ( m_open && !m_left.isOpen ) );
+          if ( m_top ) m_defaultWallConfiguration.top = m_top.defaultWallConfiguration.bottom && ( m_top.isOpen || ( m_open && !m_top.isOpen ) );
+          
+          if ( !this.wallConfiguration.isStale )
+          {
+            return;
+          }
         }
         
         if ( m_left ) m_left.configure();
@@ -404,11 +421,11 @@ package src.game
       
       if ( wallCount == 4 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "grid_w4");
+        m_wallImage.texture = TextureManager.Get("atlas", "wall_w4_c0_r0");
       }
       else if ( wallCount == 3 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "grid_w3");
+        m_wallImage.texture = TextureManager.Get("atlas", "wall_w3_c0_r0");
         
         if ( !m_wallConfiguration.left )
         {
@@ -431,7 +448,7 @@ package src.game
       {
         if ( m_wallConfiguration.isSplit )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_w2b");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w2b_c0_r0");
           if ( m_wallConfiguration.left )
           {
             m_wallImage.rotation = Math.PI / 2;
@@ -443,15 +460,15 @@ package src.game
         }
         else
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_w2a");
-          var cornerName:String = "grid_w2a_r";
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c0_r0");
+          var cornerName:String = "wall_w2a_c0_r1";
           
           if ( m_wallConfiguration.top && m_wallConfiguration.left )
           {
             if ( ( m_right && m_right.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.right ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "grid_w2_c1");
-              cornerName = "grid_w2_c1_r";
+              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              cornerName = "wall_w2a_c1_r1";
             }
               
             if ( m_wallConfiguration.tl )
@@ -465,8 +482,8 @@ package src.game
           {
             if ( ( m_left && m_left.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.left ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "grid_w2_c1");
-              cornerName = "grid_w2_c1_r";
+              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              cornerName = "wall_w2a_c1_r1";
             }
               
             if ( m_wallConfiguration.tr )
@@ -480,8 +497,8 @@ package src.game
           {
             if ( ( m_left && m_left.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.left ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "grid_w2_c1");
-              cornerName = "grid_w2_c1_r";
+              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              cornerName = "wall_w2a_c1_r1";
             }
             
             if ( m_wallConfiguration.br )
@@ -495,8 +512,8 @@ package src.game
           {
             if ( ( m_right && m_right.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.right ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "grid_w2_c1");
-              cornerName = "grid_w2_c1_r";
+              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              cornerName = "wall_w2a_c1_r1";
             }
             
             if ( m_wallConfiguration.bl )
@@ -510,7 +527,7 @@ package src.game
       }
       else if ( wallCount == 1 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "grid_w1");
+        m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c0_r0");
         
         a = false;
         b = false;
@@ -546,15 +563,15 @@ package src.game
         
         if ( a && !b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_w1_c1a");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c1a_r0");
         }
         else if ( !a && b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_w1_c1b");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c1b_r0");
         }
         else if ( a && b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_w1_c2");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c2_r0");
         }
       }
       else
@@ -568,11 +585,11 @@ package src.game
         
         if ( cornerCount == 4 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_c4");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c4_r0");
         }
         else if ( cornerCount == 3 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_c3");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c3_r0");
           
           if ( !d )
           {
@@ -595,7 +612,7 @@ package src.game
         {
           if ( ( a && c ) || ( b && d ) )
           {
-            m_wallImage.texture = TextureManager.Get("atlas", "grid_c2b");
+            m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c2b_r0");
             
             if ( a )
             {
@@ -608,7 +625,7 @@ package src.game
           }
           else
           {
-            m_wallImage.texture = TextureManager.Get("atlas", "grid_c2a");
+            m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c2a_r0");
             
             if ( a && b )
             {
@@ -630,7 +647,7 @@ package src.game
         }
         else if ( cornerCount == 1 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "grid_c1");
+          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c1_r0");
           
           if ( a )
           {
@@ -669,7 +686,8 @@ package src.game
       }
       
       m_defaultWallConfiguration.left = true;
-      m_overrideWallConfiguration.left = false;
+      
+      configure();
       
       if ( m_top ) m_top.configure();
       if ( m_bottom ) m_bottom.configure();
@@ -678,17 +696,24 @@ package src.game
     
     public function removeLeftWall():void
     {
+      if ( !m_valid || !m_open )
+      {
+        return;
+      }
+      
       if ( !m_defaultWallConfiguration.left )
       {
         return;
       }
       
-      if ( !m_left || !m_left.isOpen )
+      if ( !m_left || !m_left.isOpen || !m_left.isValid )
       {
         return;
       }
       
       m_defaultWallConfiguration.left = false;
+      
+      configure();
 
       if ( m_top ) m_top.configure();
       if ( m_bottom ) m_bottom.configure();
@@ -703,7 +728,8 @@ package src.game
       }
       
       m_defaultWallConfiguration.top = true;
-      m_overrideWallConfiguration.top = false;
+      
+      configure();
       
       if ( m_left ) m_left.configure();
       if ( m_right ) m_right.configure();
@@ -712,17 +738,24 @@ package src.game
     
     public function removeTopWall():void
     {
+      if ( !m_valid || !m_open )
+      {
+        return;
+      }
+      
       if ( !m_defaultWallConfiguration.top )
       {
         return;
       }
       
-      if ( !m_top || !m_top.isOpen )
+      if ( !m_top || !m_top.isOpen || !m_top.isValid )
       {
         return;
       }
       
       m_defaultWallConfiguration.top = false;
+      
+      configure();
       
       if ( m_left ) m_left.configure();
       if ( m_right ) m_right.configure();
@@ -730,14 +763,15 @@ package src.game
     }
     
     public function placeRightWall():void
-    {
+    {      
       if ( m_defaultWallConfiguration.right )
       {
         return;
       }
       
       m_defaultWallConfiguration.right = true;
-      m_overrideWallConfiguration.right = false;
+      
+      configure();
       
       if ( m_top ) m_top.configure();
       if ( m_bottom ) m_bottom.configure();
@@ -746,17 +780,24 @@ package src.game
     
     public function removeRightWall():void
     {
+      if ( !m_valid || !m_open )
+      {
+        return;
+      }
+      
       if ( !m_defaultWallConfiguration.right )
       {
         return;
       }
       
-      if ( !m_right || !m_right.isOpen )
+      if ( !m_right || !m_right.isOpen || !m_right.isValid )
       {
         return;
       }
       
       m_defaultWallConfiguration.right = false;
+      
+      configure();
       
       if ( m_top ) m_top.configure();
       if ( m_bottom ) m_bottom.configure();
@@ -771,7 +812,8 @@ package src.game
       }
       
       m_defaultWallConfiguration.bottom = true;
-      m_overrideWallConfiguration.bottom = false;
+      
+      configure();
       
       if ( m_left ) m_left.configure();
       if ( m_right ) m_right.configure();
@@ -780,17 +822,24 @@ package src.game
     
     public function removeBottomWall():void
     {
+      if ( !m_valid )
+      {
+        return;
+      }
+      
       if ( !m_defaultWallConfiguration.bottom )
       {
         return;
       }
       
-      if ( !m_bottom || !m_bottom.isOpen )
+      if ( !m_bottom || !m_bottom.isOpen || !m_bottom.isValid )
       {
         return;
       }
       
       m_defaultWallConfiguration.bottom = false;
+      
+      configure();
       
       if ( m_left ) m_left.configure();
       if ( m_right ) m_right.configure();
@@ -938,6 +987,36 @@ class WallConfiguration
     m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
   }
   
+  public function compress():int
+  {
+    var ret:int = 0;
+    if ( m_top )    ret |= ( 1 << 0 );
+    if ( m_right )  ret |= ( 1 << 1 );
+    if ( m_bottom ) ret |= ( 1 << 2 );
+    if ( m_left )   ret |= ( 1 << 3 );
+    if ( m_tl )     ret |= ( 1 << 4 );
+    if ( m_tr )     ret |= ( 1 << 5 );
+    if ( m_br )     ret |= ( 1 << 6 );
+    if ( m_bl )     ret |= ( 1 << 7 );
+    return ret;
+  }
+  
+  public function decompress(store:int):void
+  {
+    if ( store & ( 1 << 0 ) ) m_top = true;
+    if ( store & ( 1 << 1 ) ) m_right = true;
+    if ( store & ( 1 << 2 ) ) m_bottom = true;
+    if ( store & ( 1 << 3 ) ) m_left = true;
+    if ( store & ( 1 << 4 ) ) m_tl = true;
+    if ( store & ( 1 << 5 ) ) m_tr = true;
+    if ( store & ( 1 << 6 ) ) m_br = true;
+    if ( store & ( 1 << 7 ) ) m_bl = true;
+    
+    m_stale = true;
+    
+    verify();
+  }
+  
   public function clear():void
   {
     m_top = false;
@@ -948,6 +1027,37 @@ class WallConfiguration
     m_count = 0;
     m_split = false;
     m_stale = true;
+  }
+  
+  public function verify():void
+  {
+    m_count = uint(m_top) + uint(m_right) + uint(m_bottom) + uint(m_left);
+    m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
+    
+    if ( m_split || m_count != 2 )
+    {
+      m_bl = m_br = m_tl = m_tr = false;
+    }
+    
+    if (m_bl && (!m_left || !m_bottom))
+    {
+      m_bl = false;
+    }
+    
+    if (m_br && (!m_right || !m_bottom))
+    {
+      m_bl = false;
+    }
+    
+    if (m_tl && (!m_left || !m_top))
+    {
+      m_bl = false;
+    }
+    
+    if (m_tr && (!m_right || !m_top))
+    {
+      m_bl = false;
+    }
   }
   
   public function get top():Boolean
@@ -969,13 +1079,7 @@ class WallConfiguration
       m_tr = false;
     }
     
-    m_count = uint(m_top) + uint(m_right) + uint(m_bottom) + uint(m_left);
-    m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
-    
-    if ( m_split || m_count != 2 )
-    {
-      m_bl = m_br = m_tl = m_tr = false;
-    }
+    verify();
   }
   
   public function get right():Boolean
@@ -997,13 +1101,7 @@ class WallConfiguration
       m_br = false;
     }
     
-    m_count = uint(m_top) + uint(m_right) + uint(m_bottom) + uint(m_left);
-    m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
-    
-    if ( m_split || m_count != 2 )
-    {
-      m_bl = m_br = m_tl = m_tr = false;
-    }
+    verify();
   }
   
   public function get bottom():Boolean
@@ -1025,13 +1123,7 @@ class WallConfiguration
       m_br = false;
     }
     
-    m_count = uint(m_top) + uint(m_right) + uint(m_bottom) + uint(m_left);
-    m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
-    
-    if ( m_split || m_count != 2 )
-    {
-      m_bl = m_br = m_tl = m_tr = false;
-    }
+    verify();
   }
   
   public function get left():Boolean
@@ -1053,13 +1145,7 @@ class WallConfiguration
       m_tl = false;
     }
     
-    m_count = uint(m_top) + uint(m_right) + uint(m_bottom) + uint(m_left);
-    m_split = m_count == 2 && ( ( m_top && m_bottom ) || ( m_right && m_left ) );
-    
-    if ( m_split || m_count != 2 )
-    {
-      m_bl = m_br = m_tl = m_tr = false;
-    }
+    verify();
   }
   
   public function get tl():Boolean
@@ -1069,6 +1155,11 @@ class WallConfiguration
   
   public function set tl(val:Boolean):void
   {
+    if (val != m_tl)
+    {
+      m_stale = true;
+    }
+    
     m_tl = val;
     if ( !m_top || !m_left )
     {
@@ -1083,6 +1174,11 @@ class WallConfiguration
   
   public function set tr(val:Boolean):void
   {
+    if (val != m_tr)
+    {
+      m_stale = true;
+    }
+    
     m_tr = val;
     if ( !m_top || !m_right )
     {
@@ -1097,6 +1193,11 @@ class WallConfiguration
   
   public function set br(val:Boolean):void
   {
+    if (val != m_br)
+    {
+      m_stale = true;
+    }
+    
     m_br = val;
     if ( !m_bottom || !m_right )
     {
@@ -1108,9 +1209,14 @@ class WallConfiguration
   {
     return m_bl;
   }
-  
+  //TODO - Test a more complicated puzzle save and load, just got corners working, also need to remove override wall config as it's useless
   public function set bl(val:Boolean):void
   {
+    if (val != m_bl)
+    {
+      m_stale = true;
+    }
+    
     m_bl = val;
     if ( !m_bottom || !m_left )
     {
@@ -1139,5 +1245,10 @@ class WallConfiguration
   public function get isSplit():Boolean
   {
     return m_split;
+  }
+  
+  public function print():void
+  {
+    trace(m_top + "|" + m_right + "|" + m_bottom + "|" + m_left);
   }
 }

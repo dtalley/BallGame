@@ -2,14 +2,21 @@ package src.game.controller
 {
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.filesystem.File;
+  import flash.filesystem.FileMode;
+  import flash.filesystem.FileStream;
   import flash.geom.Point;
   import src.game.Ball;
   import src.game.Board;
   import src.game.ButtonTree;
+  import src.game.gadget.Combine;
+  import src.game.gadget.Expand;
   import src.game.gadget.Gadget;
   import src.game.gadget.Goal;
+  import src.game.gadget.Phase;
   import src.game.Panel;
   import src.game.Tile;
+  import src.game.utils.ConfigManager;
   import src.game.utils.TextureManager;
   import starling.display.Image;
   import starling.events.Touch;
@@ -36,14 +43,27 @@ package src.game.controller
     private var m_baseEdit:ButtonTree;
     private var m_ballEdit:ButtonTree;
     private var m_goalEdit:ButtonTree;
+    private var m_gadgetsEdit:ButtonTree;
     
+    private var m_backToMain:ButtonTree;    
+    private var m_phaseEdit:ButtonTree;
+    private var m_combineEdit:ButtonTree;
+    private var m_expandEdit:ButtonTree;
+    
+    private var m_load:ButtonTree;
+    private var m_save:ButtonTree;
     private var m_clear:ButtonTree;
     private var m_play:ButtonTree;
     
     private var m_placingBall:Ball;
-    private var m_placingGoal:Goal;
+    private var m_placingGadget:Gadget;
     
     private var m_ignoreTile:Tile;
+    private var m_holdingTile:Tile;
+    
+    private var m_holding:Boolean = false;
+    private var m_moved:Boolean = false;
+    private var m_accumulator:Number = 0;
     
     private var m_tiles:Vector.<Tile>;
     
@@ -54,9 +74,9 @@ package src.game.controller
       
       m_tiles = m_board.tiles;
       
-      m_wall = new Image(TextureManager.Get("atlas", "hi_wall"));
-      m_corner = new Image(TextureManager.Get("atlas", "hi_corner"));
-      m_center = new Image(TextureManager.Get("atlas", "hi_center"));
+      m_wall = new Image(TextureManager.Get("atlas", "ui_grid_wall"));
+      m_corner = new Image(TextureManager.Get("atlas", "ui_grid_corner"));
+      m_center = new Image(TextureManager.Get("atlas", "ui_grid_center"));
       
       m_wall.smoothing = TextureSmoothing.NONE;
       m_corner.smoothing = TextureSmoothing.NONE;
@@ -71,19 +91,58 @@ package src.game.controller
       m_center.visible = false;
       
       m_tree = new ButtonTree("root", 0);
-      m_baseEdit = m_tree.createChild("base", ButtonTree.SELECTABLE, true);
+      m_baseEdit = m_tree.createChild("grid", ButtonTree.SELECTABLE, true);
       m_ballEdit = m_tree.createChild("ball", ButtonTree.SELECTABLE);
       m_goalEdit = m_tree.createChild("goal", ButtonTree.SELECTABLE);
       
-      m_tree.createChild("", ButtonTree.BLANK);
-      m_tree.createChild("", ButtonTree.BLANK);
-      m_tree.createChild("", ButtonTree.BLANK);
+      m_gadgetsEdit = m_tree.createChild("gear", ButtonTree.PUSH);
       
+      m_backToMain = m_gadgetsEdit.createChild("left", ButtonTree.POP);
+      m_phaseEdit = m_gadgetsEdit.createChild("phase", ButtonTree.SELECTABLE);
+      m_combineEdit = m_gadgetsEdit.createChild("combine", ButtonTree.SELECTABLE);
+      m_expandEdit = m_gadgetsEdit.createChild("expand", ButtonTree.SELECTABLE);
+      
+      m_load = m_tree.createChild("load");
+      m_save = m_tree.createChild("save");
       m_clear = m_tree.createChild("clear");
       m_play = m_tree.createChild("play");
       
+      m_load.addEventListener("activated", this.loadActivated);
+      m_save.addEventListener("activated", this.saveActivated);
       m_clear.addEventListener("activated", this.clearActivated);
       m_play.addEventListener("activated", this.playActivated);
+    }
+    
+    private function loadActivated(e:Event):void
+    {
+      var file:File = new File();
+      file.browseForOpen("Load Puzzle");
+      file.addEventListener(Event.SELECT, loadFileSelected);
+    }
+    
+    private function loadFileSelected(e:Event):void
+    {
+      var file:File = e.currentTarget as File;
+      var fs:FileStream = new FileStream();
+      fs.open(file, FileMode.READ);
+      m_board.load(fs);
+      fs.close();
+    }
+    
+    private function saveActivated(e:Event):void
+    {
+      var file:File = new File();
+      file.browseForSave("Save Puzzle");
+      file.addEventListener(Event.SELECT, saveFileSelected);
+    }
+    
+    private function saveFileSelected(e:Event):void
+    {
+      var file:File = e.currentTarget as File;
+      var fs:FileStream = new FileStream();
+      fs.open(file, FileMode.WRITE);
+      m_board.save(fs);
+      fs.close();
     }
     
     private function clearActivated(e:Event):void
@@ -98,7 +157,16 @@ package src.game.controller
     
     public function Update(elapsed:Number):void
     {
-      
+      if ( m_holding )
+      {
+        m_accumulator += elapsed;
+        if ( m_accumulator > 1 )
+        {
+          m_holdingTile.clearGadget();
+          m_holdingTile = null;
+          m_holding = false;
+        }
+      }
     }
     
     public function Activate():void
@@ -106,24 +174,12 @@ package src.game.controller
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       
       m_panel.loadTree(m_tree);
-      m_tree.activate();
-      
-      if ( !m_placingBall )
-      {
-        m_placingBall = new Ball();
-      }
-      
-      if ( !m_placingGoal )
-      {
-        m_placingGoal = new Goal(); 
-      }
-      
-      m_board.addBall(m_placingBall);
       
       var count:uint = m_tiles.length;
       for ( var i:uint = 0; i < count; i++ )
       {
         m_tiles[i].clearPlan();
+        m_tiles[i].reset();
       }
     }
     
@@ -135,23 +191,48 @@ package src.game.controller
       
       if ( m_baseEdit.isSelected )
       {
+        m_holdingTile = null;
+        m_holding = false;
         handleBaseEdit(tile, touch.phase, position);
       }
       else if (m_ballEdit.isSelected )
       {
+        m_holdingTile = null;
+        m_holding = false;
         handleBallEdit(tile, touch.phase);
       }
       else if ( m_goalEdit.isSelected )
       {
-        handleGoalEdit(tile, touch.phase);
+        handleGadgetEdit(tile, touch.phase, Goal);
+      }
+      else if ( m_phaseEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Phase);
+      }
+      else if ( m_combineEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Combine);
+      }
+      else if ( m_expandEdit.isSelected )
+      {
+        handleGadgetEdit(tile, touch.phase, Expand);
       }
     }
     
-    private function handleGoalEdit(tile:Tile, phase:String):void
+    private function handleGadgetEdit(tile:Tile, phase:String, type:Class):void
     {
-      if ( !tile.hasGadget || tile.gadget != m_placingGoal )
+      if ( !m_placingGadget || !(m_placingGadget is type) )
       {
-        m_placingGoal.removeFromTile();
+        if ( m_placingGadget )
+        {
+          m_placingGadget.removeFromTile();
+        }
+        m_placingGadget = new type();
+      }
+      
+      if ( phase == "hover" && ( !tile.hasGadget || tile.gadget != m_placingGadget ) )
+      {
+        m_placingGadget.removeFromTile();
       }
       
       if ( !tile || !tile.isOpen || m_ignoreTile == tile )
@@ -165,31 +246,47 @@ package src.game.controller
       {        
         if ( !tile.hasGadget )
         {
-          tile.addGadget(m_placingGoal);
+          m_placingGadget.tile = tile;
         }
       }
       else if ( phase === "began" )
       {
-        var gadget:Gadget = tile.gadget;
-        if ( gadget == m_placingGoal )
+        m_moved = false;
+        m_holdingTile = tile;
+        if ( !tile.hasGadget )
         {
-          m_placingGoal = new Goal();
+          m_placingGadget.tile = tile;
         }
-        else if ( gadget is Goal )
-        {          
-          var goal:Goal = gadget as Goal;
-          if ( goal.type == Ball.PURPLE )
+        else if( tile.gadget != m_placingGadget )
+        {
+          m_accumulator = 0;
+          m_holding = true;
+        }
+      }
+      else if ( phase === "moved" )
+      {
+        if ( tile != m_holdingTile && !tile.hasGadget && m_holdingTile.hasGadget )
+        {
+          m_holdingTile.gadget.tile = tile;
+          m_holdingTile = tile;
+          m_holding = false;
+          m_moved = true;
+        }
+      }
+      else if( phase === "ended" )
+      {
+        m_holdingTile = null;
+        m_holding = false;
+        if ( tile.hasGadget )
+        {
+          if ( tile.gadget == m_placingGadget )
           {
-            goal.type = Ball.BLUE;
+            m_placingGadget = new type();
           }
-          else if ( goal.type == Ball.BLUE )
+          else if( !m_moved )
           {
-            goal.type = Ball.RED;
-          }
-          else
-          {
-            goal.removeFromTile();
-            m_ignoreTile = tile;
+            var gadget:Gadget = tile.gadget;
+            gadget.tap();
           }
         }
       }
@@ -197,6 +294,12 @@ package src.game.controller
     
     private function handleBallEdit(tile:Tile, phase:String):void
     {
+      if ( !m_placingBall )
+      {
+        m_placingBall = new Ball();
+        m_board.addBall(m_placingBall);
+      }
+      
       if ( tile && m_placingBall.tile != tile )
       {
         m_placingBall.removeFromTile();
@@ -273,8 +376,8 @@ package src.game.controller
             return;
           }
           m_center.visible = true;
-          m_center.x = tile.x + ( Board.tileSize / 2 ) - ( m_center.width / 2 );
-          m_center.y = tile.y + ( Board.tileSize / 2 ) - ( m_center.height / 2 );
+          m_center.x = tile.x + ( ConfigManager.TILE_SIZE / 2 ) - ( m_center.width / 2 );
+          m_center.y = tile.y + ( ConfigManager.TILE_SIZE / 2 ) - ( m_center.height / 2 );
           return;
         }
         else if ( !tile.isOpen )
@@ -303,7 +406,7 @@ package src.game.controller
           }
           
           m_wall.visible = true;
-          m_wall.x = tile.x + Board.tileSize + 4;
+          m_wall.x = tile.x + ConfigManager.TILE_SIZE + 4;
           m_wall.y = tile.y - 4;
           m_wall.rotation = Math.PI / 2;
           return;
@@ -316,8 +419,8 @@ package src.game.controller
           }
           
           m_wall.visible = true;
-          m_wall.x = tile.x + Board.tileSize + 4;
-          m_wall.y = tile.y + Board.tileSize + 4;
+          m_wall.x = tile.x + ConfigManager.TILE_SIZE + 4;
+          m_wall.y = tile.y + ConfigManager.TILE_SIZE + 4;
           m_wall.rotation = Math.PI;
           return;
         }
@@ -330,7 +433,7 @@ package src.game.controller
           
           m_wall.visible = true;
           m_wall.x = tile.x - 4;
-          m_wall.y = tile.y + Board.tileSize + 4;
+          m_wall.y = tile.y + ConfigManager.TILE_SIZE + 4;
           m_wall.rotation = Math.PI / 2 * 3;
           return;
         }
@@ -359,7 +462,7 @@ package src.game.controller
           }
           
           m_corner.visible = true;
-          m_corner.x = tile.x + Board.tileSize - 6;
+          m_corner.x = tile.x + ConfigManager.TILE_SIZE - 6;
           m_corner.y = tile.y + 6;
           m_corner.rotation = Math.PI / 2;
         } 
@@ -371,8 +474,8 @@ package src.game.controller
           }
           
           m_corner.visible = true;
-          m_corner.x = tile.x + Board.tileSize - 6;
-          m_corner.y = tile.y + Board.tileSize - 6;
+          m_corner.x = tile.x + ConfigManager.TILE_SIZE - 6;
+          m_corner.y = tile.y + ConfigManager.TILE_SIZE - 6;
           m_corner.rotation = Math.PI;
         } 
         else if ( region == Tile.BL_CORNER )
@@ -384,7 +487,7 @@ package src.game.controller
           
           m_corner.visible = true;
           m_corner.x = tile.x + 6;
-          m_corner.y = tile.y + Board.tileSize - 6;
+          m_corner.y = tile.y + ConfigManager.TILE_SIZE - 6;
           m_corner.rotation = Math.PI / 2 * 3;
         }
       }
@@ -459,22 +562,22 @@ package src.game.controller
         }
         else if (region == Tile.TL_CORNER )
         {
-          tile.wallConfiguration.tl = !tile.wallConfiguration.tl;
+          tile.defaultWallConfiguration.tl = !tile.defaultWallConfiguration.tl;
           tile.configure();
         }
         else if (region == Tile.TR_CORNER )
         {
-          tile.wallConfiguration.tr = !tile.wallConfiguration.tr;
+          tile.defaultWallConfiguration.tr = !tile.defaultWallConfiguration.tr;
           tile.configure();
         }
         else if (region == Tile.BR_CORNER )
         {
-          tile.wallConfiguration.br = !tile.wallConfiguration.br;
+          tile.defaultWallConfiguration.br = !tile.defaultWallConfiguration.br;
           tile.configure();
         }
         else if (region == Tile.BL_CORNER )
         {
-          tile.wallConfiguration.bl = !tile.wallConfiguration.bl;
+          tile.defaultWallConfiguration.bl = !tile.defaultWallConfiguration.bl;
           tile.configure();
         }
       }
@@ -491,6 +594,7 @@ package src.game.controller
       m_board.removeEventListener(TouchEvent.TOUCH, this.boardTouched);
       
       m_board.removeBall(m_placingBall);
+      m_placingBall = null;
     }
   }
 

@@ -8,7 +8,9 @@ package src.game.controller
   import src.game.ButtonTree;
   import src.game.gadget.Dispurse;
   import src.game.gadget.Gadget;
+  import src.game.gadget.Rally;
   import src.game.gadget.Redirect;
+  import src.game.gadget.Reverse;
   import src.game.Panel;
   import src.game.Tile;
   import starling.events.Touch;
@@ -31,8 +33,9 @@ package src.game.controller
     
     private var m_edit:ButtonTree;
     
-    private var m_redirect:ButtonTree;
+    private var m_reverse:ButtonTree;
     private var m_dispurse:ButtonTree;
+    private var m_rally:ButtonTree;
     
     private var m_placingGadget:Gadget;
     
@@ -49,9 +52,9 @@ package src.game.controller
       m_balls = m_board.balls;
       
       m_tree = new ButtonTree("root", 0);      
-      m_redirect = m_tree.createChild("right", ButtonTree.SELECTABLE);
+      m_reverse = m_tree.createChild("reverse", ButtonTree.SELECTABLE);
       m_dispurse = m_tree.createChild("dispurse", ButtonTree.SELECTABLE);
-      m_tree.createChild("", ButtonTree.BLANK);
+      m_rally = m_tree.createChild("rally", ButtonTree.SELECTABLE);
       m_tree.createChild("", ButtonTree.BLANK);
       m_tree.createChild("", ButtonTree.BLANK);
       m_tree.createChild("", ButtonTree.BLANK);
@@ -77,7 +80,7 @@ package src.game.controller
       
       if ( m_accumulator >= 1 )
       {
-        if ( m_holdTile.hasGadget && !m_holdTile.hasDefaultGadget )
+        if ( m_holdTile.hasGadget && !m_holdTile.hasDefaultGadget && m_holdTile.gadget.isRemoveable )
         {
           m_holdTile.clearGadget();
         }
@@ -89,7 +92,6 @@ package src.game.controller
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       
       m_panel.loadTree(m_tree);
-      m_tree.activate();
       
       var count:uint = m_tiles.length;
       for ( var i:uint = 0; i < count; i++ )
@@ -128,7 +130,7 @@ package src.game.controller
       
       if ( phase == "began" )
       {
-        if ( tile.hasGadget && !tile.hasDefaultGadget )
+        if ( tile.hasGadget && tile.gadget.isMoveable )
         {
           m_holding = true;
           m_holdTile = tile;
@@ -191,14 +193,19 @@ package src.game.controller
         }
       }
       
-      if ( m_redirect.isSelected )
+      if ( m_reverse.isSelected )
       {
-        placeGadget(tile, position, phase, Redirect);
+        placeGadget(tile, position, phase, Reverse);
         return;
       }
       else if ( m_dispurse.isSelected )
       {
         placeGadget(tile, position, phase, Dispurse);
+        return;
+      }
+      else if ( m_rally.isSelected )
+      {
+        placeGadget(tile, position, phase, Rally);
         return;
       }
     }

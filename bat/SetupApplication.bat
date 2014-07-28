@@ -17,7 +17,7 @@ set APP_XML="%CWD%application.xml"
 
 :: Files to package
 set APP_DIR="%CWD%bin"
-set FILE_OR_DIR=-C %APP_DIR% BallGame.swf assets/textures/atlas_hd.png
+set FILE_OR_DIR=-C %APP_DIR% BallGame.swf assets/textures/hd/atlas.png assets/textures/hd/atlas.json assets/config.json
 
 :: Your application ID (must match <id> of Application descriptor)
 set APP_ID=com.orionark.games.BallGame

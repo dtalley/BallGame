@@ -61,7 +61,7 @@ package src.game.controller
       {
         for ( var i:int = 0; i < m_board.ballCount; i++ )
         {
-          if ( m_balls[i].target )
+          if ( m_balls[i].tile && m_balls[i].target )
           {
             m_balls[i].tile = m_balls[i].target;
           }
@@ -69,7 +69,10 @@ package src.game.controller
         
         for ( i = 0; i < m_board.ballCount; i++ )
         {
-          m_balls[i].calculateTarget();
+          if ( m_balls[i].tile )
+          {
+            m_balls[i].calculateTarget();
+          }
         }
         m_accumulator -= m_speed;
       }
@@ -78,7 +81,10 @@ package src.game.controller
       
       for ( i = 0; i < m_board.ballCount; i++ )
       {
-        m_balls[i].moveFromSourceToTarget(percent);
+        if (m_balls[i].tile)
+        {
+          m_balls[i].moveFromSourceToTarget(percent);
+        }
       }
     }
     
@@ -87,7 +93,6 @@ package src.game.controller
       m_accumulator = 0;
       
       m_panel.loadTree(m_tree);
-      m_tree.activate();
       
       for ( var i:int = 0; i < m_board.ballCount; i++ )
       {

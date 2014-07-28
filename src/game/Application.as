@@ -2,7 +2,9 @@ package src.game
 {
   import flash.display.Bitmap;
   import flash.display.Loader;
+  import flash.utils.ByteArray;
   import src.game.controller.Editor;
+  import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import flash.geom.Rectangle;
   import src.game.controller.Controller;
@@ -35,86 +37,39 @@ package src.game
     
     public function Application() 
     {      
-      this.addEventListener(starling.events.Event.ADDED_TO_STAGE, this.initialize);
+      
+    }
+    
+    public function start():void
+    {
+      ConfigManager.load();
+      
+      this.configureMainAtlas();
     }
     
     private function configureMainAtlas():void
     {      
       var mainLoader:Loader = AssetManager.Get("assets/textures/hd/atlas.png") as Loader;
-      var mainTexture:Texture = TextureManager.Create("atlasTexture", mainLoader.content as Bitmap);
+      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/atlas.png");
       var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("atlas", mainTexture);
       
-      /*mainAtlas.addRegion("grid_open",          new Rectangle(74 *  0, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_closed",        new Rectangle(74 *  1, 74 * 0, 74, 74));
+      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/atlas.json") as ByteArray;
+      var json:String = atlasJson.readUTFBytes(atlasJson.length);
       
-      mainAtlas.addRegion("grid_w1",            new Rectangle(74 *  2, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_w1_c1a",        new Rectangle(74 *  6, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_w1_c1b",        new Rectangle(74 *  7, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_w1_c2",         new Rectangle(74 *  8, 74 * 0, 74, 74));
+      var obj:Array = JSON.parse(json) as Array;
+      obj.forEach(function(spr:Array, a:*, b:*):void {
+        mainAtlas.addRegion(spr[0], new Rectangle(spr[1], spr[2], spr[3], spr[4]));
+      });
       
-      mainAtlas.addRegion("grid_w2a",           new Rectangle(74 *  3, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_w2b",           new Rectangle(74 *  2, 74 * 1, 74, 74));
-      mainAtlas.addRegion("grid_w2a_r",         new Rectangle(74 *  3, 74 * 1, 74, 74));
-      mainAtlas.addRegion("grid_w2_c1",         new Rectangle(74 *  9, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_w2_c1_r",       new Rectangle(74 *  4, 74 * 1, 74, 74));
-      
-      mainAtlas.addRegion("grid_w3",            new Rectangle(74 *  4, 74 * 0, 74, 74));
-      
-      mainAtlas.addRegion("grid_w4",            new Rectangle(74 *  5, 74 * 0, 74, 74));
-      
-      mainAtlas.addRegion("grid_c1",            new Rectangle(74 * 10, 74 * 0, 74, 74));
-      
-      mainAtlas.addRegion("grid_c2a",           new Rectangle(74 * 11, 74 * 0, 74, 74));
-      mainAtlas.addRegion("grid_c2b",           new Rectangle(74 * 11, 74 * 1, 74, 74));
-      
-      mainAtlas.addRegion("grid_c3",            new Rectangle(74 * 12, 74 * 0, 74, 74));
-      
-      mainAtlas.addRegion("grid_c4",            new Rectangle(74 * 12, 74 * 1, 74, 74));
-      
-      mainAtlas.addRegion("hi_wall",            new Rectangle(962, 0, 8, 82));
-      mainAtlas.addRegion("hi_corner",          new Rectangle(970, 0, 30, 30));
-      mainAtlas.addRegion("hi_center",          new Rectangle(970, 30, 34, 34));
-      
-      mainAtlas.addRegion("ball_purple",        new Rectangle(74 * 2, 74 * 2, 74, 74));
-      mainAtlas.addRegion("ball_blue",          new Rectangle(74 * 3, 74 * 2, 74, 74));
-      mainAtlas.addRegion("ball_red",           new Rectangle(74 * 4, 74 * 2, 74, 74));
-      
-      mainAtlas.addRegion("goal_purple",        new Rectangle(74 * 2, 74 * 3, 74, 74));
-      mainAtlas.addRegion("goal_blue",          new Rectangle(74 * 3, 74 * 3, 74, 74));
-      mainAtlas.addRegion("goal_red",           new Rectangle(74 * 4, 74 * 3, 74, 74));
-      
-      mainAtlas.addRegion("gadget_redirect",    new Rectangle(74 * 2, 74 * 4, 74, 74));
-      mainAtlas.addRegion("gadget_dispurse",    new Rectangle(74 * 3, 74 * 4, 74, 74));
-      
-      mainAtlas.addRegion("panel",              new Rectangle(74 * 5, 74 * 1, 82, 82));
-      
-      mainAtlas.addRegion("panel_out",          new Rectangle(74 * 1, 74 * 2, 74, 74));
-      mainAtlas.addRegion("panel_down",         new Rectangle(74 * 1, 74 * 3, 74, 74));
-      mainAtlas.addRegion("panel_selected",     new Rectangle(74 * 1, 74 * 4, 74, 74));
-      
-      mainAtlas.addRegion("panel_icon_play",    new Rectangle(74 * 0, 74 * 2, 74, 74));
-      mainAtlas.addRegion("panel_icon_right",   new Rectangle(74 * 0, 74 * 3, 74, 74));
-      mainAtlas.addRegion("panel_icon_left",    new Rectangle(74 * 0, 74 * 4, 74, 74));
-      mainAtlas.addRegion("panel_icon_ball",    new Rectangle(74 * 0, 74 * 5, 74, 74));
-      mainAtlas.addRegion("panel_icon_reset",   new Rectangle(74 * 1, 74 * 5, 74, 74));
-      mainAtlas.addRegion("panel_icon_dispurse",new Rectangle(74 * 2, 74 * 5, 74, 74));
-      mainAtlas.addRegion("panel_icon_base",    new Rectangle(74 * 0, 74 * 6, 74, 74));
-      mainAtlas.addRegion("panel_icon_edit",    new Rectangle(74 * 1, 74 * 6, 74, 74));
-      mainAtlas.addRegion("panel_icon_goal",    new Rectangle(74 * 0, 74 * 7, 74, 74));
-      mainAtlas.addRegion("panel_icon_clear",   new Rectangle(74 * 0, 74 * 8, 74, 74));*/
-    }
-    
-    private function initialize(e:starling.events.Event):void
-    {
-      this.configureMainAtlas();
+      this.createBoard();
     }
     
     private function createBoard():void
     {
       m_board = new Board();
       this.addChild(m_board);
-      m_board.x = ( stage.stageWidth / 2 ) - ( ( Board.columns * Board.tileSize ) / 2 );
-      m_board.y = ( stage.stageHeight / 2 ) - ( ( Board.rows * Board.tileSize ) / 2 );
+      m_board.x = ( stage.stageWidth / 2 ) - ( ( Board.columns * ConfigManager.TILE_SIZE ) / 2 );
+      m_board.y = ( stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 );
       
       if ( m_board.x < m_board.y )
       {

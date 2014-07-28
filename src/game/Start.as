@@ -20,8 +20,12 @@ package src.game
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.align = StageAlign.TOP_LEFT;
       
+      m_starling = new Starling(Application, stage);
+      m_starling.start();
+      
       AssetManager.Initialize();      
       AssetManager.LoadBundle([
+        "assets/config.json",
         "assets/textures/hd/atlas.png",
         "assets/textures/hd/atlas.json"
        ], null, this.Ready);
@@ -35,9 +39,7 @@ package src.game
         return;
       }
       
-      m_starling = new Starling(Application, stage);
-      m_starling.start();
-      //m_starling.showStats = true;
+      (m_starling.root as Application).start();
     }
   }
 

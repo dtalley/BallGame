@@ -1,6 +1,7 @@
 package src.game 
 {
   import flash.geom.Rectangle;
+  import src.game.utils.ConfigManager;
   import src.game.utils.TextureManager;
 	import starling.display.Sprite;
   import src.starling.extensions.Scale9Image;
@@ -20,17 +21,17 @@ package src.game
     
     public function Panel() 
     {
-      m_background = new Scale9Image(TextureManager.Get("atlas", "panel"), new Rectangle(3, 3, 3, 3));
+      m_background = new Scale9Image(TextureManager.Get("atlas", "panel_background"), new Rectangle(3, 3, 3, 3));
       this.addChild(m_background);
-      m_background.width = Board.tileSize + 8;
-      m_background.height = ( Board.tileSize * Board.rows ) + 8;
+      m_background.width = ConfigManager.TILE_SIZE + 8;
+      m_background.height = ( ConfigManager.TILE_SIZE * Board.rows ) + 8;
       m_background.smoothing = TextureSmoothing.NONE;
       
       for ( var i:int = 0; i < Board.rows; i++ )
       {
         var button:PanelButton = new PanelButton();
         this.addChild(button);
-        button.y = 4 + ( i * Board.tileSize );
+        button.y = 4 + ( i * ConfigManager.TILE_SIZE );
         button.x = 4;
         m_buttons.push(button);
       }
@@ -52,6 +53,7 @@ package src.game
       }
       
       m_tree = tree;
+      m_tree.panel = this;
       
       for ( var i:int = 0; i < m_buttons.length; i++ )
       {
@@ -64,6 +66,8 @@ package src.game
           m_tree.getChild(i).load(m_buttons[i]);
         }
       }
+      
+      m_tree.activate();
     }
   }
 

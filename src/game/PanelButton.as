@@ -17,7 +17,7 @@ package src.game
     public function PanelButton():void
     {
       this.touchable = false;
-      m_base = new Image(TextureManager.Get("atlas", "panel_out"));
+      m_base = new Image(TextureManager.Get("atlas", "panel_button_out"));
       this.addChild(m_base);
       m_base.visible = false;
       m_base.smoothing = TextureSmoothing.NONE;
@@ -59,19 +59,19 @@ package src.game
     
     public function select():void
     {
-      m_base.texture = TextureManager.Get("atlas", "panel_selected");
+      m_base.texture = TextureManager.Get("atlas", "panel_button_selected");
       m_selected = true;
     }
     
     public function deselect():void
     {
-      m_base.texture = TextureManager.Get("atlas", "panel_out");
+      m_base.texture = TextureManager.Get("atlas", "panel_button_out");
       m_selected = false;
     }
     
     public function activate():void
     {
-      m_base.texture = TextureManager.Get("atlas", "panel_down");
+      m_base.texture = TextureManager.Get("atlas", "panel_button_down");
       
       var timer:Timer = new Timer(500, 1);
       timer.addEventListener(TimerEvent.TIMER_COMPLETE, this.deactivate);
@@ -85,7 +85,7 @@ package src.game
         e.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.deactivate);
       }
       
-      m_base.texture = TextureManager.Get("atlas", "panel_out");
+      m_base.texture = TextureManager.Get("atlas", "panel_button_out");
     }
     
     public function get isSelected():Boolean

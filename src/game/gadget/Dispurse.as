@@ -1,6 +1,7 @@
 package src.game.gadget 
 {
   import src.game.Ball;
+  import src.game.Tile;
   import src.game.utils.TextureManager;
   import starling.display.Image;
 	/**
@@ -29,46 +30,69 @@ package src.game.gadget
         return;
       }
       
-      if ( ball.tile.top )
+      var current:Tile = ball.tile.top;
+      while ( current )
       {
-        ball.tile.top.modifyBalls(function(curball:Ball):void {
+        current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 0;
           curball.direction.y = -1;
           curball.calculateTarget();
         });
+        current = current.top;
       }
       
-      if ( ball.tile.left )
+      current = ball.tile.left;
+      while ( current )
       {
-        ball.tile.left.modifyBalls(function(curball:Ball):void {
+        current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = -1;
           curball.direction.y = 0;
           curball.calculateTarget();
         });
+        current = current.left;
       }
       
-      if ( ball.tile.right )
+      current = ball.tile.right;
+      while ( current )
       {
-        ball.tile.right.modifyBalls(function(curball:Ball):void {
+        current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 1;
           curball.direction.y = 0;
           curball.calculateTarget();
         });
+        current = current.right;
       }
       
-      if ( ball.tile.bottom )
+      current = ball.tile.bottom;
+      while ( current )
       {
-        ball.tile.bottom.modifyBalls(function(curball:Ball):void {
+        current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 0;
           curball.direction.y = 1;
           curball.calculateTarget();
         });
+        current = current.bottom;
       }
     }
     
     public override function reset():void
     {
       
+    }
+    
+    public override function get isMoveable():Boolean
+    {
+      return true;
+    }
+    
+    public override function get isRemoveable():Boolean
+    {
+      return true;
+    }
+    
+    public override function get id():uint
+    {
+      return GadgetManager.s_gadgets.indexOf(Dispurse);
     }
   }
 
