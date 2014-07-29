@@ -1,5 +1,7 @@
 package src.game.gadget
 {
+  import flash.events.Event;
+  import src.game.event.BallEvent;
   import src.game.gadget.Gadget;
   import src.game.utils.TextureManager;
   import starling.display.Image;
@@ -9,14 +11,23 @@ package src.game.gadget
   public class Goal extends Gadget
   {
     private var m_base:Image;
+    private var m_indicator:Image;
     
     private var m_type:uint;
+    private var m_target:uint = 1;
+    private var m_consumed:uint = 0;
     
-    public function Goal(type:uint = Ball.RED) 
+    public function Goal(data:uint = 0x00000009) //Target = 1, type = 1 
     {
-      m_type = type;
+      m_type = data & 0x7;
+      m_target = ( data >> 3 ) & 0xF;
+      if (m_target == 0)
+      {
+        m_target = 1;
+      }
       configure();
       this.addChild(m_base);
+      this.addChild(m_indicator);
     }
     
     private function configure():void
@@ -25,6 +36,13 @@ package src.game.gadget
       {
         m_base = new Image(TextureManager.Get("atlas", "gadget_goal_red"));
       }
+      
+      if (!m_indicator)
+      {
+        m_indicator = new Image(TextureManager.Get("atlas", "goal_t" + m_target + "_c" + m_consumed));
+      }
+      
+      m_indicator.texture = TextureManager.Get("atlas", "goal_t" + m_target + "_c" + m_consumed);
       
       if ( m_type == Ball.PURPLE )
       {
@@ -101,17 +119,29 @@ package src.game.gadget
     
     public override function act(ball:Ball, percent:Number):void
     {
-      
+      if (percent == 1 && ball.type == m_type)
+      {
+        ball.removeFromTile();
+        m_consumed++;
+        configure();
+        tile.dispatchEvent(new BallEvent(BallEvent.BALL_CONSUMED, ball, tile));
+      }
     }
     
     public override function reset():void
     {
-      
+      m_consumed = 0;
+      configure();
+    }
+    
+    public function get isComplete():Boolean
+    {
+      return m_consumed >= m_target;
     }
     
     public override function save():uint
     {
-      return m_type;
+      return ( m_target << 3 ) | ( m_type & 0x7 );
     }
     
     public override function get id():uint

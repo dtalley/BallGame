@@ -6,6 +6,7 @@ package src.game.controller
   import src.game.Ball;
   import src.game.Board;
   import src.game.ButtonTree;
+  import src.game.event.BoardEvent;
   import src.game.Panel;
   import src.game.Tile;
   import starling.events.Touch;
@@ -46,6 +47,13 @@ package src.game.controller
       m_reset = m_tree.createChild("reset", ButtonTree.NORMAL);
       
       m_reset.addEventListener("activated", this.resetActivated);
+      
+      m_board.addEventListener(BoardEvent.BOARD_COMPLETE, this.boardComplete);
+    }
+    
+    private function boardComplete(e:BoardEvent):void
+    {
+      this.dispatchEvent(new Event("startPlanner"));
     }
     
     private function resetActivated(e:Event):void

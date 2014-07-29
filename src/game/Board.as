@@ -2,8 +2,11 @@ package src.game
 {
   import flash.filesystem.FileStream;
   import flash.utils.ByteArray;
+  import src.game.event.BallEvent;
+  import src.game.event.BoardEvent;
   import src.game.gadget.Gadget;
   import src.game.gadget.GadgetManager;
+  import src.game.gadget.Goal;
   import src.game.utils.ConfigManager;
   import src.game.utils.MathX;
 	import starling.display.Sprite;
@@ -32,7 +35,8 @@ package src.game
       {
         for ( var j:int = 0 - padding; j < columns + padding; j++ )
         {
-          var tile:Tile = new Tile(this, MathX.within(i+1, 1, rows) && MathX.within(j+1, 1, columns));
+          var tile:Tile = new Tile(this, MathX.within(i + 1, 1, rows) && MathX.within(j + 1, 1, columns));
+          tile.addEventListener(BallEvent.BALL_CONSUMED, this.ballConsumed);
           this.addChild(tile);
           tile.x = j * tileSize;
           tile.y = i * tileSize;
@@ -49,6 +53,26 @@ package src.game
           
           this.m_tiles.push(tile);
           m_tileCount++;
+        }
+      }
+    }
+    
+    private function ballConsumed(e:BallEvent):void
+    {
+      if (e.tile.gadget is Goal)
+      {
+        var goal:Goal = e.tile.gadget as Goal;
+        if ( goal.isComplete )
+        {
+          for ( var i:int = 0; i < m_tiles.length; i++ )
+          {
+            if ( m_tiles[i].isValid && m_tiles[i].hasGadget && m_tiles[i].gadget is Goal && !(m_tiles[i].gadget as Goal).isComplete )
+            {
+              return;
+            }
+          }
+          
+          dispatchEvent(new BoardEvent(BoardEvent.BOARD_COMPLETE));
         }
       }
     }

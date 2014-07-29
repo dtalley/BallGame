@@ -121,6 +121,11 @@ package src.game
         m_tile.gadget.act(this, 1);
       }
       
+      if ( !m_tile )
+      {
+        return;
+      }
+      
       if ( m_direction.x < 0 )
       {        
         if ( !m_tile.left || m_tile.wallConfiguration.left || m_tile.left.wallConfiguration.right )
