@@ -302,7 +302,7 @@ package src.game
         return false;
       }
       
-      if ( m_mode == ButtonTree.SELECTABLE && m_button.isSelected )
+      if ( ( m_mode & ButtonTree.SELECTABLE ) != 0 && m_button.isSelected )
       {
         return true;
       }

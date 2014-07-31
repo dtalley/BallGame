@@ -378,7 +378,7 @@ package src.game.controller
       }
       else if ( phase === "moved" )
       {
-        if ( tile != m_holdingTile && !tile.hasGadget && m_holdingTile.hasGadget )
+        if ( tile != m_holdingTile && !tile.hasGadget && m_holdingTile && m_holdingTile.hasGadget )
         {
           m_holdingTile.gadget.tile = tile;
           m_holdingTile = tile;
