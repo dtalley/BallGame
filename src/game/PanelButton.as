@@ -10,9 +10,11 @@ package src.game
   public class PanelButton extends Sprite
   {
     private var m_base:Image;
+    private var m_toggle:Image;
     private var m_icon:Image = null;
     
     private var m_selected:Boolean = false;
+    private var m_toggled:Boolean = false;
     
     public function PanelButton():void
     {
@@ -21,6 +23,9 @@ package src.game
       this.addChild(m_base);
       m_base.visible = false;
       m_base.smoothing = TextureSmoothing.NONE;
+      m_toggle = new Image(TextureManager.Get("atlas", "panel_button_toggle"));
+      this.addChild(m_toggle);
+      m_toggle.visible = false;
     }
     
     public function setIcon(name:String):void
@@ -55,6 +60,18 @@ package src.game
       
       m_base.visible = false;
       this.touchable = false;
+    }
+    
+    public function setToggle():void
+    {
+      m_toggled = true;
+      m_toggle.visible = true;
+    }
+    
+    public function clearToggle():void
+    {
+      m_toggled = false;
+      m_toggle.visible = false;
     }
     
     public function select():void

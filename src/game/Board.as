@@ -164,7 +164,6 @@ package src.game
     
     public function save(fs:FileStream):void
     {
-      fs.writeMultiByte("bpfh", "us-ascii");
       fs.writeByte(rows);
       fs.writeByte(columns);
       
@@ -207,14 +206,7 @@ package src.game
     }
     
     public function load(fs:FileStream):void
-    {
-      var header:String = fs.readMultiByte(4, "us-ascii");
-      if (header != "bpfh")
-      {
-        trace("Invalid puzzle file, header was '" + header + "'");
-        return;
-      }
-      
+    {      
       var frows:int = fs.readByte();
       var fcolumns:int = fs.readByte();
       

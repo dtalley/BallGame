@@ -13,6 +13,7 @@ package src.game.controller
   import src.game.gadget.Dispurse;
   import src.game.gadget.Expand;
   import src.game.gadget.Gadget;
+  import src.game.gadget.GadgetManager;
   import src.game.gadget.Goal;
   import src.game.gadget.Phase;
   import src.game.gadget.Rally;
@@ -104,12 +105,12 @@ package src.game.controller
       m_gadgetsEdit = m_tree.createChild("gear", ButtonTree.PUSH);
       
       m_backToMain = m_gadgetsEdit.createChild("left", ButtonTree.POP);
-      m_reverseEdit = m_gadgetsEdit.createChild("reverse", ButtonTree.SELECTABLE);
-      m_rallyEdit = m_gadgetsEdit.createChild("rally", ButtonTree.SELECTABLE);
-      m_dispurseEdit = m_gadgetsEdit.createChild("dispurse", ButtonTree.SELECTABLE);
-      m_phaseEdit = m_gadgetsEdit.createChild("phase", ButtonTree.SELECTABLE);
-      m_combineEdit = m_gadgetsEdit.createChild("combine", ButtonTree.SELECTABLE);
-      m_expandEdit = m_gadgetsEdit.createChild("expand", ButtonTree.SELECTABLE);
+      m_reverseEdit = m_gadgetsEdit.createChild("reverse", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
+      m_rallyEdit = m_gadgetsEdit.createChild("rally", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
+      m_dispurseEdit = m_gadgetsEdit.createChild("dispurse", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
+      m_phaseEdit = m_gadgetsEdit.createChild("phase", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
+      m_combineEdit = m_gadgetsEdit.createChild("combine", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
+      m_expandEdit = m_gadgetsEdit.createChild("expand", ButtonTree.SELECTABLE | ButtonTree.TOGGLE);
       
       m_load = m_tree.createChild("load");
       m_save = m_tree.createChild("save");
@@ -135,6 +136,27 @@ package src.game.controller
       var file:File = e.currentTarget as File;
       var fs:FileStream = new FileStream();
       fs.open(file, FileMode.READ);
+      
+      var header:String = fs.readMultiByte(4, "us-ascii");
+      if (header != "bpfh")
+      {
+        trace("Invalid puzzle file, header was '" + header + "'");
+        return;
+      }
+      
+      var jv:uint = fs.readByte(); //Major version
+      var nv:uint = fs.readByte(); //Minor version
+      
+      var d1:uint = fs.readUnsignedInt();
+      var d2:uint = fs.readUnsignedInt();
+      
+      loadGadgetStatus(m_reverseEdit, Reverse, d1, d2);
+      loadGadgetStatus(m_rallyEdit, Rally, d1, d2);
+      loadGadgetStatus(m_dispurseEdit, Dispurse, d1, d2);
+      loadGadgetStatus(m_phaseEdit, Phase, d1, d2);
+      loadGadgetStatus(m_combineEdit, Combine, d1, d2);
+      loadGadgetStatus(m_expandEdit, Expand, d1, d2);
+      
       m_board.load(fs);
       fs.close();
     }
@@ -151,13 +173,82 @@ package src.game.controller
       var file:File = e.currentTarget as File;
       var fs:FileStream = new FileStream();
       fs.open(file, FileMode.WRITE);
+      
+      //Header
+      fs.writeMultiByte("bpfh", "us-ascii");
+      
+      //Version (1.0)
+      fs.writeByte(1);
+      fs.writeByte(0);
+      
+      var config:GadgetConfiguration = new GadgetConfiguration();
+      
+      saveGadgetStatus(m_reverseEdit.isToggled, Reverse, config);
+      saveGadgetStatus(m_rallyEdit.isToggled, Rally, config);
+      saveGadgetStatus(m_dispurseEdit.isToggled, Dispurse, config);
+      saveGadgetStatus(m_phaseEdit.isToggled, Phase, config);
+      saveGadgetStatus(m_combineEdit.isToggled, Combine, config);
+      saveGadgetStatus(m_expandEdit.isToggled, Expand, config);
+      
+      fs.writeUnsignedInt(config.d1);
+      fs.writeUnsignedInt(config.d2);
+      
       m_board.save(fs);
       fs.close();
+    }
+    
+    private function saveGadgetStatus(isSet:Boolean, type:Class, config:GadgetConfiguration):void
+    {
+      if (isSet)
+      {
+        var id:uint = GadgetManager.s_gadgets.indexOf(type);
+        var flag:uint = 0;
+        if (id > 32)
+        {
+          flag = ( 1 << ( id - 32 ) );
+          config.d2 |= flag;
+        }
+        else
+        {
+          flag = ( 1 << id );
+          config.d1 |= flag;
+        }
+      }
+    }
+    
+    private function loadGadgetStatus(tree:ButtonTree, type:Class, d1:uint, d2:uint):void
+    {
+      var id:uint = GadgetManager.s_gadgets.indexOf(type);
+      var test:uint = 0;
+      if (id > 32)
+      {
+        test = d2 & ( 1 << ( id - 32 ) );
+      }
+      else
+      {
+        test = d1 & ( 1 << id );
+      }
+      
+      if (test)
+      {
+        tree.setToggle();
+      }
+      else
+      {
+        tree.clearToggle();
+      }
     }
     
     private function clearActivated(e:Event):void
     {
       m_board.clearTiles();
+      
+      m_reverseEdit.clearToggle();
+      m_rallyEdit.clearToggle();
+      m_dispurseEdit.clearToggle();
+      m_phaseEdit.clearToggle();
+      m_combineEdit.clearToggle();
+      m_expandEdit.clearToggle();
     }
     
     private function playActivated(e:Event):void
@@ -632,4 +723,15 @@ package src.game.controller
     }
   }
 
+}
+
+class GadgetConfiguration
+{
+  public var d1:uint = 0;
+  public var d2:uint = 0;
+  
+  public function GadgetConfiguration()
+  {
+    
+  }
 }

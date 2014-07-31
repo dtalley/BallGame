@@ -2,6 +2,8 @@ package src.game
 {
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.events.TimerEvent;
+  import flash.utils.Timer;
   import starling.events.TouchEvent;
 	/**
    * ...
@@ -31,6 +33,10 @@ package src.game
     private var m_selected:ButtonTree = null;
     private var m_defaultSelection:ButtonTree = null;
     
+    private var m_toggleHeld:Boolean = false;
+    private var m_timer:Timer = null;
+    private var m_toggled:Boolean = false;
+    
     public function ButtonTree(name:String, mode:uint, parent:ButtonTree = null):void
     {
       m_name = name;
@@ -44,7 +50,7 @@ package src.game
       m_children.push(child);
       m_count++;
       
-      if ( mode == ButtonTree.SELECTABLE )
+      if ( mode & ButtonTree.SELECTABLE )
       {
         child.addEventListener("selected", this.childSelected);
         
@@ -123,6 +129,12 @@ package src.game
     public function load(button:PanelButton):void
     {
       m_button = button;
+      m_button.clearToggle();
+      
+      if (m_toggled)
+      {
+        m_button.setToggle();
+      }
       
       if ( m_mode == ButtonTree.BLANK )
       {
@@ -139,8 +151,16 @@ package src.game
     {
       if ( e.touches[0].phase != "began" || !m_button )
       {
+        if (e.touches[0].phase == "ended" && m_toggleHeld)
+        {
+          m_toggleHeld = false;
+          m_timer.removeEventListener(TimerEvent.TIMER_COMPLETE, this.toggleTimerComplete);
+          m_timer = null;
+        }
         return;
       }
+      
+      m_toggleHeld = false;
       
       if ( m_mode & ButtonTree.PUSH )
       {
@@ -168,6 +188,60 @@ package src.game
           dispatchEvent(new Event("selected"));
         }
       }
+      
+      if ( m_mode & ButtonTree.TOGGLE )
+      {
+        m_toggleHeld = true;
+        m_timer = new Timer(750, 1);
+        m_timer.addEventListener(TimerEvent.TIMER_COMPLETE, this.toggleTimerComplete);
+        m_timer.start();
+      }
+    }
+    
+    private function toggleTimerComplete(e:Event):void
+    {
+      m_timer.removeEventListener(TimerEvent.TIMER_COMPLETE, this.toggleTimerComplete);
+      m_timer = null;
+      m_toggleHeld = false;
+      
+      m_toggled = !m_toggled;
+      if (m_toggled)
+      {
+        m_button.setToggle();
+      }
+      else
+      {
+        m_button.clearToggle();
+      }
+    }
+    
+    public function setToggle():void
+    {
+      if (!m_toggled)
+      {
+        m_toggled = true;
+        if (m_button)
+        {
+          m_button.setToggle();
+        }
+      }
+    }
+    
+    public function clearToggle():void
+    {
+      if (m_toggled)
+      {
+        m_toggled = false;
+        if (m_button)
+        {
+          m_button.clearToggle();
+        }
+      }
+    }
+    
+    public function get isToggled():Boolean
+    {
+      return m_toggled;
     }
     
     public function select():void
@@ -180,7 +254,7 @@ package src.game
     
     public function deselect():void
     {
-      if ( m_mode == ButtonTree.SELECTABLE && m_button && m_button.isSelected )
+      if ( ( m_mode & ButtonTree.SELECTABLE ) != 0 && m_button && m_button.isSelected )
       {
         m_button.deselect();
       }

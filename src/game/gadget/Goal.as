@@ -89,11 +89,27 @@ package src.game.gadget
     {
       if ( m_type == Ball.RED )
       {
-        this.type = Ball.BLUE;
+        if (m_target == 1)
+        {
+          m_target = 2;
+        }
+        else
+        {
+          m_target = 1;
+          this.type = Ball.BLUE;
+        }
       }
       else if ( m_type == Ball.BLUE )
       {
-        this.type = Ball.RED;
+        if (m_target == 1)
+        {
+          m_target = 2;
+        }
+        else
+        {
+          m_target = 1;
+          this.type = Ball.PURPLE;
+        }
       }
       /*else if ( m_type == Ball.BLUE )
       {
@@ -113,8 +129,17 @@ package src.game.gadget
       }*/
       else
       {
-        this.type = Ball.RED;
+        if (m_target == 1)
+        {
+          m_target = 2;
+        }
+        else
+        {
+          m_target = 1;
+          this.type = Ball.RED;
+        }
       }
+      configure();
     }
     
     public override function act(ball:Ball, percent:Number):void
