@@ -6,6 +6,7 @@ package src.game.controller
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   import flash.geom.Point;
+  import flash.utils.ByteArray;
   import src.game.Ball;
   import src.game.Board;
   import src.game.ButtonTree;
@@ -132,23 +133,30 @@ package src.game.controller
     
     private function loadFileSelected(e:Event):void
     {
+      var bytes:ByteArray = new ByteArray();
+      
       m_board.clearTiles();
       var file:File = e.currentTarget as File;
       var fs:FileStream = new FileStream();
       fs.open(file, FileMode.READ);
+      while (fs.bytesAvailable)
+      {
+        fs.readBytes(bytes, 0, fs.bytesAvailable);
+      }
+      fs.close();
       
-      var header:String = fs.readMultiByte(4, "us-ascii");
+      var header:String = bytes.readMultiByte(4, "us-ascii");
       if (header != "bpfh")
       {
         trace("Invalid puzzle file, header was '" + header + "'");
         return;
       }
       
-      var jv:uint = fs.readByte(); //Major version
-      var nv:uint = fs.readByte(); //Minor version
+      var jv:uint = bytes.readByte(); //Major version
+      var nv:uint = bytes.readByte(); //Minor version
       
-      var d1:uint = fs.readUnsignedInt();
-      var d2:uint = fs.readUnsignedInt();
+      var d1:uint = bytes.readUnsignedInt();
+      var d2:uint = bytes.readUnsignedInt();
       
       loadGadgetStatus(m_reverseEdit, Reverse, d1, d2);
       loadGadgetStatus(m_rallyEdit, Rally, d1, d2);
@@ -157,8 +165,7 @@ package src.game.controller
       loadGadgetStatus(m_combineEdit, Combine, d1, d2);
       loadGadgetStatus(m_expandEdit, Expand, d1, d2);
       
-      m_board.load(fs);
-      fs.close();
+      m_board.load(bytes);
     }
     
     private function saveActivated(e:Event):void
@@ -170,16 +177,14 @@ package src.game.controller
     
     private function saveFileSelected(e:Event):void
     {
-      var file:File = e.currentTarget as File;
-      var fs:FileStream = new FileStream();
-      fs.open(file, FileMode.WRITE);
+      var bytes:ByteArray = new ByteArray();
       
       //Header
-      fs.writeMultiByte("bpfh", "us-ascii");
+      bytes.writeMultiByte("bpfh", "us-ascii");
       
       //Version (1.0)
-      fs.writeByte(1);
-      fs.writeByte(0);
+      bytes.writeByte(1);
+      bytes.writeByte(0);
       
       var config:GadgetConfiguration = new GadgetConfiguration();
       
@@ -190,10 +195,15 @@ package src.game.controller
       saveGadgetStatus(m_combineEdit.isToggled, Combine, config);
       saveGadgetStatus(m_expandEdit.isToggled, Expand, config);
       
-      fs.writeUnsignedInt(config.d1);
-      fs.writeUnsignedInt(config.d2);
+      bytes.writeUnsignedInt(config.d1);
+      bytes.writeUnsignedInt(config.d2);
       
-      m_board.save(fs);
+      m_board.save(bytes);
+      
+      var file:File = e.currentTarget as File;
+      var fs:FileStream = new FileStream();
+      fs.open(file, FileMode.WRITE);
+      fs.writeBytes(bytes, 0, bytes.length);
       fs.close();
     }
     

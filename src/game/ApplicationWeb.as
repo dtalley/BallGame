@@ -3,7 +3,6 @@ package src.game
   import flash.display.Bitmap;
   import flash.display.Loader;
   import flash.utils.ByteArray;
-  import src.game.controller.Editor;
   import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import flash.geom.Rectangle;
@@ -24,7 +23,7 @@ package src.game
    * ...
    * @author 
    */
-  public class Application extends Sprite 
+  public class ApplicationWeb extends Sprite 
   {
     private var m_board:Board;
     private var m_panel:Panel;
@@ -33,9 +32,8 @@ package src.game
     
     private var m_planner:Planner;
     private var m_simulator:Simulator;
-    private var m_editor:Editor;
     
-    public function Application() 
+    public function ApplicationWeb() 
     {      
       
     }
@@ -87,9 +85,8 @@ package src.game
       
       m_planner = new Planner(m_board, m_panel);
       m_simulator = new Simulator(m_board, m_panel);
-      m_editor = new Editor(m_board, m_panel);
       
-      this.setController(m_editor);
+      this.setController(m_planner);
       
       this.addEventListener(starling.events.Event.ENTER_FRAME, this.Update);
     }
@@ -100,7 +97,6 @@ package src.game
       {
         m_controller.removeEventListener("startPlanner", this.startPlanner);
         m_controller.removeEventListener("startSimulator", this.startSimulator);
-        m_controller.removeEventListener("startEditor", this.startEditor);
         
         m_controller.Deactivate();
       }
@@ -109,7 +105,6 @@ package src.game
       
       m_controller.addEventListener("startPlanner", this.startPlanner);
       m_controller.addEventListener("startSimulator", this.startSimulator);
-      m_controller.addEventListener("startEditor", this.startEditor);
       
       m_controller.Activate();
     }
@@ -122,11 +117,6 @@ package src.game
     private function startSimulator(e:flash.events.Event):void
     {
       this.setController(m_simulator);
-    }
-    
-    private function startEditor(e:flash.events.Event):void
-    {
-      this.setController(m_editor);
     }
     
     public function Update(e:starling.events.EnterFrameEvent):void

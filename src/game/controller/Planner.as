@@ -13,6 +13,7 @@ package src.game.controller
   import src.game.gadget.Reverse;
   import src.game.Panel;
   import src.game.Tile;
+  import src.game.utils.ConfigManager;
   import starling.events.Touch;
   import starling.events.TouchEvent;
 	/**
@@ -61,9 +62,15 @@ package src.game.controller
       m_tree.createChild("", ButtonTree.BLANK);
       m_tree.createChild("", ButtonTree.BLANK);
       m_tree.createChild("", ButtonTree.BLANK);
-      m_edit = m_tree.createChild("edit", ButtonTree.NORMAL);
-      
-      m_edit.addEventListener("activated", this.editActivated);
+      if (ConfigManager.ENVIRONMENT == ConfigManager.ENVIRONMENT_EDITOR)
+      {
+        m_edit = m_tree.createChild("edit", ButtonTree.NORMAL);
+        m_edit.addEventListener("activated", this.editActivated);
+      }
+      else
+      {
+        m_tree.createChild("", ButtonTree.BLANK);
+      }
     }
     
     private function editActivated(e:Event):void

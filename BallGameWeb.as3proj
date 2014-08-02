@@ -4,13 +4,13 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="bin\BallGame.swf" />
+    <movie path="bin\BallGameWeb.swf" />
     <movie fps="60" />
     <movie width="960" />
     <movie height="640" />
-    <movie version="3" />
-    <movie minorVersion="7" />
-    <movie platform="AIR" />
+    <movie version="14" />
+    <movie minorVersion="0" />
+    <movie platform="Flash Player" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
@@ -72,7 +72,7 @@
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="src\game\Start.as" />
+    <compile path="src\game\StartWeb.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
@@ -85,8 +85,8 @@
   <!-- Other project options -->
   <options>
     <option showHiddenPaths="False" />
-    <option testMovie="Custom" />
-    <option testMovieCommand="Run.bat" />
+    <option testMovie="ExternalPlayer" />
+    <option testMovieCommand="RunEditor.bat" />
   </options>
   <!-- Plugin storage -->
   <storage />

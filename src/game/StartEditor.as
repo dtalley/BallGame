@@ -11,21 +11,21 @@ package src.game
    * Document class for the game
    * @author David Talley
    */
-  public class Start extends Sprite 
+  public class StartEditor extends Sprite 
   {
     private var m_starling:Starling;
     
-    public function Start() 
+    public function StartEditor() 
     {
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.align = StageAlign.TOP_LEFT;
       
-      m_starling = new Starling(Application, stage);
+      m_starling = new Starling(ApplicationEditor, stage);
       m_starling.start();
       
       AssetManager.Initialize();      
       AssetManager.LoadBundle([
-        "assets/config.json",
+        "assets/config_editor.json",
         "assets/textures/hd/atlas.png",
         "assets/textures/hd/atlas.json"
        ], null, this.Ready);
@@ -39,7 +39,7 @@ package src.game
         return;
       }
       
-      (m_starling.root as Application).start();
+      (m_starling.root as ApplicationEditor).start();
     }
   }
 

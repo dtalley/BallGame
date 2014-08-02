@@ -1,6 +1,5 @@
 package src.game 
 {
-  import flash.filesystem.FileStream;
   import flash.utils.ByteArray;
   import src.game.event.BallEvent;
   import src.game.event.BoardEvent;
@@ -162,7 +161,7 @@ package src.game
       }
     }
     
-    public function save(fs:FileStream):void
+    public function save(fs:ByteArray):void
     {
       fs.writeByte(rows);
       fs.writeByte(columns);
@@ -205,7 +204,7 @@ package src.game
       }
     }
     
-    public function load(fs:FileStream):void
+    public function load(fs:ByteArray):void
     {      
       var frows:int = fs.readByte();
       var fcolumns:int = fs.readByte();
