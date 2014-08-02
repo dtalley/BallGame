@@ -7,6 +7,8 @@ package src.game.utils
    */
   public class ConfigManager 
   {
+    private static var s_environmentSet:Boolean = false;
+    
     private static var s_tileSize:uint;
     private static var s_padding:uint;
     private static var s_environment:uint;
@@ -14,14 +16,16 @@ package src.game.utils
     public static function load():void
     {
       var configJson:ByteArray = null;
-      configJson = AssetManager.Get("assets/config_editor.json") as ByteArray;
       
-      if (!configJson)
+      if (s_environment == ENVIRONMENT_EDITOR)
+      {
+        configJson = AssetManager.Get("assets/config_editor.json") as ByteArray;
+      }
+      else if (s_environment == ENVIRONMENT_WEB)
       {
         configJson = AssetManager.Get("assets/config_web.json") as ByteArray;  
       }
-      
-      if (!configJson)
+      else
       {
         throw new Error("Could not load configuration file.");
       }
@@ -32,7 +36,6 @@ package src.game.utils
       
       s_tileSize = parseInt(obj.tileSize);
       s_padding = parseInt(obj.padding);
-      s_environment = parseInt(obj.environment);
     }
     
     public static function get TILE_SIZE():uint
@@ -48,6 +51,16 @@ package src.game.utils
     public static function get ENVIRONMENT():uint
     {
       return s_environment;
+    }
+    
+    public static function set ENVIRONMENT(val:uint):void
+    {
+      if (s_environmentSet)
+      {
+        return;
+      }
+      
+      s_environment = val;
     }
     
     public static const ENVIRONMENT_EDITOR:uint = 1;

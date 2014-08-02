@@ -15,35 +15,34 @@ package src.game.gadget
     public function Phase(type:uint = Ball.PURPLE) 
     {
       m_type = type;
-      if ( type == Ball.PURPLE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_phase_purple"));
-      }
-      else if ( type == Ball.BLUE )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_phase_blue"));
-      }
-      else if ( type == Ball.RED )
-      {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_phase_red"));
-      }
+      configure();
       this.addChild(m_base);
     }
     
     public function set type(val:uint):void
     {
       m_type = val;
+      configure();
+    }
+    
+    private function configure():void
+    {
+      if (!m_base)
+      {
+        m_base = new Image(TextureManager.Get("game", "gadget_phase_purple"));
+      }
+      
       if ( m_type == Ball.PURPLE )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_phase_purple");
+        m_base.texture = TextureManager.Get("game", "gadget_phase_purple");
       }
       else if ( m_type == Ball.BLUE )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_phase_blue");
+        m_base.texture = TextureManager.Get("game", "gadget_phase_blue");
       }
       else if ( m_type == Ball.RED )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_phase_red");
+        m_base.texture = TextureManager.Get("game", "gadget_phase_red");
       }
     }
     

@@ -82,9 +82,9 @@ package src.game.controller
       
       m_tiles = m_board.tiles;
       
-      m_wall = new Image(TextureManager.Get("atlas", "ui_grid_wall"));
-      m_corner = new Image(TextureManager.Get("atlas", "ui_grid_corner"));
-      m_center = new Image(TextureManager.Get("atlas", "ui_grid_center"));
+      m_wall = new Image(TextureManager.Get("game", "ui_grid_wall"));
+      m_corner = new Image(TextureManager.Get("game", "ui_grid_corner"));
+      m_center = new Image(TextureManager.Get("game", "ui_grid_center"));
       
       m_wall.smoothing = TextureSmoothing.NONE;
       m_corner.smoothing = TextureSmoothing.NONE;
@@ -280,7 +280,7 @@ package src.game.controller
       }
     }
     
-    public function Activate():void
+    public function Activate(previous:Controller):void
     {
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       

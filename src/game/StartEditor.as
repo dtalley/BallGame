@@ -4,6 +4,7 @@ package src.game
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
   import src.game.utils.AssetManager;
+  import src.game.utils.ConfigManager;
   
   import starling.core.Starling;
 	
@@ -22,6 +23,8 @@ package src.game
       
       m_starling = new Starling(ApplicationEditor, stage);
       m_starling.start();
+      
+      ConfigManager.ENVIRONMENT = ConfigManager.ENVIRONMENT_EDITOR;
       
       AssetManager.Initialize();      
       AssetManager.LoadBundle([

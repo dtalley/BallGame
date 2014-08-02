@@ -3,6 +3,8 @@ package src.game
   import flash.display.Bitmap;
   import flash.display.Loader;
   import flash.utils.ByteArray;
+  import src.game.controller.Main;
+  import src.game.controller.SplashWeb;
   import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import flash.geom.Rectangle;
@@ -13,10 +15,9 @@ package src.game
   import src.game.utils.TextureManager;
   import starling.display.Quad;
 	import starling.display.Sprite;
-  import flash.events.Event;
   import starling.textures.TextureAtlas;
   import starling.utils.Color;
-  import starling.events.Event;
+  import flash.events.Event;
   import starling.events.EnterFrameEvent;
 	
 	/**
@@ -30,6 +31,8 @@ package src.game
     
     private var m_controller:Controller = null;
     
+    private var m_splash:SplashWeb;
+    private var m_main:Main;
     private var m_planner:Planner;
     private var m_simulator:Simulator;
     
@@ -42,16 +45,21 @@ package src.game
     {
       ConfigManager.load();
       
-      this.configureMainAtlas();
+      m_splash = new SplashWeb();
+      m_splash.addEventListener("assetsLoaded", this.configureMainAtlas);
+      
+      this.setController(m_splash);
+      
+      this.addEventListener(starling.events.Event.ENTER_FRAME, this.Update);
     }
     
-    private function configureMainAtlas():void
+    private function configureMainAtlas(e:Event = null):void
     {      
-      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/atlas.png") as Loader;
-      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/atlas.png");
-      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("atlas", mainTexture);
+      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/game.png") as Loader;
+      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/game.png");
+      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("game", mainTexture);
       
-      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/atlas.json") as ByteArray;
+      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/game.json") as ByteArray;
       var json:String = atlasJson.readUTFBytes(atlasJson.length);
       
       var obj:Array = JSON.parse(json) as Array;
@@ -83,18 +91,21 @@ package src.game
       m_panel.x = stage.stageWidth - m_panel.width - m_board.x;
       m_panel.y = m_board.y - 4;
       
+      m_main = new Main(m_board, m_panel);
       m_planner = new Planner(m_board, m_panel);
       m_simulator = new Simulator(m_board, m_panel);
       
-      this.setController(m_planner);
-      
-      this.addEventListener(starling.events.Event.ENTER_FRAME, this.Update);
+      this.setController(m_main);
     }
     
     private function setController(controller:Controller):void
     {
+      var previous:Controller = null;
+      
       if ( m_controller )
       {
+        previous = m_controller;
+        
         m_controller.removeEventListener("startPlanner", this.startPlanner);
         m_controller.removeEventListener("startSimulator", this.startSimulator);
         
@@ -106,20 +117,20 @@ package src.game
       m_controller.addEventListener("startPlanner", this.startPlanner);
       m_controller.addEventListener("startSimulator", this.startSimulator);
       
-      m_controller.Activate();
+      m_controller.Activate(previous);
     }
     
-    private function startPlanner(e:flash.events.Event):void
+    private function startPlanner(e:Event):void
     {
       this.setController(m_planner);
     }
     
-    private function startSimulator(e:flash.events.Event):void
+    private function startSimulator(e:Event):void
     {
       this.setController(m_simulator);
     }
     
-    public function Update(e:starling.events.EnterFrameEvent):void
+    public function Update(e:EnterFrameEvent):void
     {
       m_controller.Update(e.passedTime);
     }

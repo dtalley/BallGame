@@ -4,14 +4,14 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     
-    spritepacker: {
-      default_options: {
+    spritepacker: {      
+      gamehd: {
         options: {
           // Path to the template for generating metafile:
           template: './sprites/hd.tpl',
 
           // Destination metafile:
-          destCss: './assets/textures/hd/atlas.json',
+          destCss: './assets/textures/hd/game.json',
           
           baseUrl: './',
           
@@ -19,18 +19,32 @@ module.exports = function(grunt) {
         },
         
         files: {
-          './assets/textures/hd/atlas.png': ['./sprites/hd/*.png']
+          './assets/textures/hd/game.png': ['./sprites/hd/game/*.png']
+        }
+      },
+      
+      prehd: {
+        options: {
+          // Path to the template for generating metafile:
+          template: './sprites/hd.tpl',
+
+          // Destination metafile:
+          destCss: './assets/textures/hd/pre.json',
+          
+          baseUrl: './',
+          
+          powerOfTwo: true
         },
         
-        powerOfTwo: true
+        files: {
+          './assets/textures/hd/pre.png': ['./sprites/hd/pre/*.png']
+        }
       }
     }
   });
 
-  // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-sprite-packer');
 
   // Default task(s).
-  grunt.registerTask('default', ['spritepacker']);
-
+  grunt.registerTask('pack', ['spritepacker']);
 };

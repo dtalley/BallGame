@@ -13,7 +13,7 @@ package src.game.gadget
     
     public function Combine(data:uint = 0) 
     {
-      m_base = new Image(TextureManager.Get("atlas", "gadget_combine"));
+      m_base = new Image(TextureManager.Get("game", "gadget_combine"));
       this.addChild(m_base);
     }
     

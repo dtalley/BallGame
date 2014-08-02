@@ -60,11 +60,11 @@ package src.game
       var blank:Texture = null;
       if ( open )
       {
-        blank = TextureManager.Get("atlas", "grid_open");
+        blank = TextureManager.Get("game", "grid_open");
       }
       else
       {
-        blank = TextureManager.Get("atlas", "grid_closed");
+        blank = TextureManager.Get("game", "grid_closed");
       }
       
       if ( blank )
@@ -318,7 +318,7 @@ package src.game
         this.clearGadget();
         
         m_open = false;
-        m_baseImage.texture = TextureManager.Get("atlas", "grid_closed");
+        m_baseImage.texture = TextureManager.Get("game", "grid_closed");
         
         m_defaultWallConfiguration.clear();
         m_overrideWallConfiguration.clear();
@@ -347,7 +347,7 @@ package src.game
       if ( !m_open )
       {
         m_open = true;
-        m_baseImage.texture = TextureManager.Get("atlas", "grid_open");
+        m_baseImage.texture = TextureManager.Get("game", "grid_open");
         
         m_defaultWallConfiguration.clear();
         m_overrideWallConfiguration.clear();
@@ -430,11 +430,11 @@ package src.game
       
       if ( wallCount == 4 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "wall_w4_c0_r0");
+        m_wallImage.texture = TextureManager.Get("game", "wall_w4_c0_r0");
       }
       else if ( wallCount == 3 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "wall_w3_c0_r0");
+        m_wallImage.texture = TextureManager.Get("game", "wall_w3_c0_r0");
         
         if ( !m_wallConfiguration.left )
         {
@@ -457,7 +457,7 @@ package src.game
       {
         if ( m_wallConfiguration.isSplit )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w2b_c0_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w2b_c0_r0");
           if ( m_wallConfiguration.left )
           {
             m_wallImage.rotation = Math.PI / 2;
@@ -469,20 +469,20 @@ package src.game
         }
         else
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c0_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c0_r0");
           var cornerName:String = "wall_w2a_c0_r1";
           
           if ( m_wallConfiguration.top && m_wallConfiguration.left )
           {
             if ( ( m_right && m_right.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.right ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
             }
               
             if ( m_wallConfiguration.tl )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", cornerName);
+              m_wallImage.texture = TextureManager.Get("game", cornerName);
             }
               
             m_wallImage.rotation = Math.PI / 2 * 3;
@@ -491,13 +491,13 @@ package src.game
           {
             if ( ( m_left && m_left.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.left ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
             }
               
             if ( m_wallConfiguration.tr )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", cornerName);
+              m_wallImage.texture = TextureManager.Get("game", cornerName);
             }
               
             m_wallImage.rotation = 0;
@@ -506,13 +506,13 @@ package src.game
           {
             if ( ( m_left && m_left.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.left ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
             }
             
             if ( m_wallConfiguration.br )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", cornerName);
+              m_wallImage.texture = TextureManager.Get("game", cornerName);
             }
               
             m_wallImage.rotation = Math.PI / 2;
@@ -521,13 +521,13 @@ package src.game
           {
             if ( ( m_right && m_right.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.right ) )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", "wall_w2a_c1_r0");
+              m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
             }
             
             if ( m_wallConfiguration.bl )
             {
-              m_wallImage.texture = TextureManager.Get("atlas", cornerName);
+              m_wallImage.texture = TextureManager.Get("game", cornerName);
             }
               
             m_wallImage.rotation = Math.PI;
@@ -536,7 +536,7 @@ package src.game
       }
       else if ( wallCount == 1 )
       {
-        m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c0_r0");
+        m_wallImage.texture = TextureManager.Get("game", "wall_w1_c0_r0");
         
         a = false;
         b = false;
@@ -572,15 +572,15 @@ package src.game
         
         if ( a && !b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c1a_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w1_c1a_r0");
         }
         else if ( !a && b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c1b_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w1_c1b_r0");
         }
         else if ( a && b )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w1_c2_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w1_c2_r0");
         }
       }
       else
@@ -594,11 +594,11 @@ package src.game
         
         if ( cornerCount == 4 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c4_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w0_c4_r0");
         }
         else if ( cornerCount == 3 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c3_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w0_c3_r0");
           
           if ( !d )
           {
@@ -621,7 +621,7 @@ package src.game
         {
           if ( ( a && c ) || ( b && d ) )
           {
-            m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c2b_r0");
+            m_wallImage.texture = TextureManager.Get("game", "wall_w0_c2b_r0");
             
             if ( a )
             {
@@ -634,7 +634,7 @@ package src.game
           }
           else
           {
-            m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c2a_r0");
+            m_wallImage.texture = TextureManager.Get("game", "wall_w0_c2a_r0");
             
             if ( a && b )
             {
@@ -656,7 +656,7 @@ package src.game
         }
         else if ( cornerCount == 1 )
         {
-          m_wallImage.texture = TextureManager.Get("atlas", "wall_w0_c1_r0");
+          m_wallImage.texture = TextureManager.Get("game", "wall_w0_c1_r0");
           
           if ( a )
           {

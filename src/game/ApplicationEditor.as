@@ -49,11 +49,11 @@ package src.game
     
     private function configureMainAtlas():void
     {      
-      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/atlas.png") as Loader;
-      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/atlas.png");
-      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("atlas", mainTexture);
+      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/game.png") as Loader;
+      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/game.png");
+      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("game", mainTexture);
       
-      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/atlas.json") as ByteArray;
+      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/game.json") as ByteArray;
       var json:String = atlasJson.readUTFBytes(atlasJson.length);
       
       var obj:Array = JSON.parse(json) as Array;
@@ -96,8 +96,10 @@ package src.game
     
     private function setController(controller:Controller):void
     {
+      var previous:Controller = null;
       if ( m_controller )
       {
+        previous = m_controller;
         m_controller.removeEventListener("startPlanner", this.startPlanner);
         m_controller.removeEventListener("startSimulator", this.startSimulator);
         m_controller.removeEventListener("startEditor", this.startEditor);
@@ -111,7 +113,7 @@ package src.game
       m_controller.addEventListener("startSimulator", this.startSimulator);
       m_controller.addEventListener("startEditor", this.startEditor);
       
-      m_controller.Activate();
+      m_controller.Activate(previous);
     }
     
     private function startPlanner(e:flash.events.Event):void

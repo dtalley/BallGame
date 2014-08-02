@@ -16,7 +16,7 @@ package src.game.gadget
     public function Expand(rotation:uint = 0) 
     {
       m_rotation = rotation;
-      m_base = new Image(TextureManager.Get("atlas", "gadget_expand"));
+      m_base = new Image(TextureManager.Get("game", "gadget_expand"));
       
       m_base.alignPivot();
       m_base.x = ConfigManager.TILE_SIZE / 2;

@@ -15,7 +15,7 @@ package src.game.gadget
     
     public function Reverse() 
     {
-      m_base = new Image(TextureManager.Get("atlas", "gadget_reverse"));
+      m_base = new Image(TextureManager.Get("game", "gadget_reverse"));
       this.addChild(m_base);
       
       m_base.alignPivot();

@@ -4,6 +4,7 @@ package src.game
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
   import src.game.utils.AssetManager;
+  import src.game.utils.ConfigManager;
   
   import starling.core.Starling;
 	
@@ -25,12 +26,12 @@ package src.game
       m_starling = new Starling(ApplicationWeb, stage);
       m_starling.start();
       
+      ConfigManager.ENVIRONMENT = ConfigManager.ENVIRONMENT_WEB;
+      
       AssetManager.Initialize();      
       AssetManager.LoadBundle([
-        "assets/config_web.json",
-        "assets/textures/hd/atlas.png",
-        "assets/textures/hd/atlas.json"
-       ], null, this.Ready);
+        "assets/config_web.json"
+      ], null, this.Ready);
     }
     
     private function Ready(err:Error):void

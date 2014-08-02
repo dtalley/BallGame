@@ -44,32 +44,32 @@ package src.game
     {
       if (!m_base)
       {
-        m_base = new Image(TextureManager.Get("atlas", "ball_red"));
+        m_base = new Image(TextureManager.Get("game", "ball_red"));
       }
       
       if ( m_type == PURPLE )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_purple");
+        m_base.texture = TextureManager.Get("game", "ball_purple");
       }
       else if ( m_type == BLUE )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_blue");
+        m_base.texture = TextureManager.Get("game", "ball_blue");
       }
       else if ( m_type == RED )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_red");
+        m_base.texture = TextureManager.Get("game", "ball_red");
       }
       else if ( m_type == GREEN )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_green");
+        m_base.texture = TextureManager.Get("game", "ball_green");
       }
       else if ( m_type == YELLOW )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_yellow");
+        m_base.texture = TextureManager.Get("game", "ball_yellow");
       }
       else if ( m_type == CYAN )
       {
-        m_base.texture = TextureManager.Get("atlas", "ball_cyan");
+        m_base.texture = TextureManager.Get("game", "ball_cyan");
       }
     }
     

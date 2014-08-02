@@ -39,38 +39,38 @@ package src.game.gadget
       
       if (!m_indicator)
       {
-        m_indicator = new Image(TextureManager.Get("atlas", "goal_t" + m_target + "_c" + m_consumed));
+        m_indicator = new Image(TextureManager.Get("game", "goal_t" + m_target + "_c" + m_consumed));
       }
       
-      m_indicator.texture = TextureManager.Get("atlas", "goal_t" + m_target + "_c" + m_consumed);
+      m_indicator.texture = TextureManager.Get("game", "goal_t" + m_target + "_c" + m_consumed);
       
       if ( m_type == Ball.PURPLE )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_purple");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_purple");
       }
       else if ( m_type == Ball.BLUE )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_blue");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_blue");
       }
       else if ( m_type == Ball.RED )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_red");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_red");
       }
       else if ( m_type == Ball.GREEN )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_green");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_green");
       }
       else if ( m_type == Ball.YELLOW )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_yellow");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_yellow");
       }
       else if ( m_type == Ball.CYAN )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_cyan");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_cyan");
       }
       else if ( m_type == Ball.WHITE )
       {
-        m_base.texture = TextureManager.Get("atlas", "gadget_goal_gray");
+        m_base.texture = TextureManager.Get("game", "gadget_goal_gray");
       }
     }
     

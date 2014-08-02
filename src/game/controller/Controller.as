@@ -9,7 +9,7 @@ package src.game.controller
   public interface Controller extends IEventDispatcher
   {
     function Update(elapsed:Number):void;
-    function Activate():void;
+    function Activate(previous:Controller):void;
     function Deactivate():void;
   }
   

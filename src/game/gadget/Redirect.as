@@ -15,7 +15,7 @@ package src.game.gadget
     
     public function Redirect() 
     {
-      m_base = new Image(TextureManager.Get("atlas", "gadget_redirect"));
+      m_base = new Image(TextureManager.Get("game", "gadget_redirect"));
       this.addChild(m_base);
       
       m_base.alignPivot();

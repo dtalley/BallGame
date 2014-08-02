@@ -96,7 +96,7 @@ package src.game.controller
       }
     }
     
-    public function Activate():void
+    public function Activate(previous:Controller):void
     {
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       
