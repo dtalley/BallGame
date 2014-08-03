@@ -34,7 +34,7 @@ package src.game.gadget
     {
       if (!m_base)
       {
-        m_base = new Image(TextureManager.Get("atlas", "gadget_goal_red"));
+        m_base = new Image(TextureManager.Get("game", "gadget_goal_red"));
       }
       
       if (!m_indicator)

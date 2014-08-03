@@ -3,7 +3,9 @@ package src.game
   import flash.display.Bitmap;
   import flash.display.Loader;
   import flash.utils.ByteArray;
+  import src.game.controller.ControllerConfiguration;
   import src.game.controller.Editor;
+  import src.game.event.ControllerEvent;
   import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import flash.geom.Rectangle;
@@ -14,7 +16,6 @@ package src.game
   import src.game.utils.TextureManager;
   import starling.display.Quad;
 	import starling.display.Sprite;
-  import flash.events.Event;
   import starling.textures.TextureAtlas;
   import starling.utils.Color;
   import starling.events.Event;
@@ -85,53 +86,50 @@ package src.game
       m_panel.x = stage.stageWidth - m_panel.width - m_board.x;
       m_panel.y = m_board.y - 4;
       
-      m_planner = new Planner(m_board, m_panel);
-      m_simulator = new Simulator(m_board, m_panel);
+      m_planner = new Planner();
+      m_simulator = new Simulator();
       m_editor = new Editor(m_board, m_panel);
       
-      this.setController(m_editor);
+      this.setController(m_editor, null);
       
-      this.addEventListener(starling.events.Event.ENTER_FRAME, this.Update);
+      this.addEventListener(Event.ENTER_FRAME, this.Update);
     }
     
-    private function setController(controller:Controller):void
+    private function setController(controller:Controller, configuration:ControllerConfiguration):void
     {
       var previous:Controller = null;
       if ( m_controller )
       {
         previous = m_controller;
-        m_controller.removeEventListener("startPlanner", this.startPlanner);
-        m_controller.removeEventListener("startSimulator", this.startSimulator);
-        m_controller.removeEventListener("startEditor", this.startEditor);
+        m_controller.removeEventListener(ControllerEvent.CHANGE_CONTROLLER, this.changeController);
         
         m_controller.Deactivate();
       }
       
       m_controller = controller;
       
-      m_controller.addEventListener("startPlanner", this.startPlanner);
-      m_controller.addEventListener("startSimulator", this.startSimulator);
-      m_controller.addEventListener("startEditor", this.startEditor);
+      m_controller.addEventListener(ControllerEvent.CHANGE_CONTROLLER, this.changeController);
       
-      m_controller.Activate(previous);
+      m_controller.Activate(configuration, previous);
     }
     
-    private function startPlanner(e:flash.events.Event):void
+    private function changeController(e:ControllerEvent):void
     {
-      this.setController(m_planner);
+      if (e.name == "planner")
+      {
+        this.setController(m_planner, e.configuration);
+      }
+      else if (e.name == "simulator")
+      {
+        this.setController(m_simulator, e.configuration);
+      }
+      else if ( e.name == "editor" )
+      {
+        this.setController(m_editor, e.configuration);
+      }
     }
     
-    private function startSimulator(e:flash.events.Event):void
-    {
-      this.setController(m_simulator);
-    }
-    
-    private function startEditor(e:flash.events.Event):void
-    {
-      this.setController(m_editor);
-    }
-    
-    public function Update(e:starling.events.EnterFrameEvent):void
+    public function Update(e:EnterFrameEvent):void
     {
       m_controller.Update(e.passedTime);
     }

@@ -7,6 +7,7 @@ package src.game.controller
   import src.game.Board;
   import src.game.ButtonTree;
   import src.game.event.BoardEvent;
+  import src.game.event.ControllerEvent;
   import src.game.Panel;
   import src.game.Tile;
   import starling.events.Touch;
@@ -29,13 +30,8 @@ package src.game.controller
     
     private var m_reset:ButtonTree;
     
-    public function Simulator(board:Board, panel:Panel) 
-    {
-      m_board = board;  
-      m_panel = panel;
-      
-      m_balls = m_board.balls;
-      
+    public function Simulator() 
+    {      
       m_tree = new ButtonTree("root", 0);      
       m_tree.createChild("", ButtonTree.BLANK);
       m_tree.createChild("", ButtonTree.BLANK);
@@ -47,18 +43,16 @@ package src.game.controller
       m_reset = m_tree.createChild("reset", ButtonTree.NORMAL);
       
       m_reset.addEventListener("activated", this.resetActivated);
-      
-      m_board.addEventListener(BoardEvent.BOARD_COMPLETE, this.boardComplete);
     }
     
     private function boardComplete(e:BoardEvent):void
     {
-      this.dispatchEvent(new Event("startPlanner"));
+      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
     }
     
     private function resetActivated(e:Event):void
     {
-      this.dispatchEvent(new Event("startPlanner"));
+      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
     }
     
     public function Update(elapsed:Number):void
@@ -96,15 +90,26 @@ package src.game.controller
       }
     }
     
-    public function Activate(previous:Controller):void
+    public function Activate(configuration:ControllerConfiguration, previous:Controller):void
     {      
-      m_accumulator = 0;
-      
-      m_panel.loadTree(m_tree);
-      
-      for ( var i:int = 0; i < m_board.ballCount; i++ )
+      if (configuration is SimulatorConfiguration)
       {
-        m_balls[i].calculateTarget();
+        var simulatorConfiguration:SimulatorConfiguration = configuration as SimulatorConfiguration;
+        
+        m_board = simulatorConfiguration.board;  
+        m_panel = simulatorConfiguration.panel;
+        
+        m_balls = m_board.balls;
+        m_board.addEventListener(BoardEvent.BOARD_COMPLETE, this.boardComplete);
+        
+        m_accumulator = 0;
+      
+        m_panel.loadTree(m_tree);
+        
+        for ( var i:int = 0; i < m_board.ballCount; i++ )
+        {
+          m_balls[i].calculateTarget();
+        }
       }
     }
     

@@ -10,6 +10,7 @@ package src.game.controller
   import src.game.Ball;
   import src.game.Board;
   import src.game.ButtonTree;
+  import src.game.event.ControllerEvent;
   import src.game.gadget.Combine;
   import src.game.gadget.Dispurse;
   import src.game.gadget.Expand;
@@ -263,7 +264,7 @@ package src.game.controller
     
     private function playActivated(e:Event):void
     {
-      this.dispatchEvent(new Event("startPlanner"));
+      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
     }
     
     public function Update(elapsed:Number):void
@@ -280,7 +281,7 @@ package src.game.controller
       }
     }
     
-    public function Activate(previous:Controller):void
+    public function Activate(configuration:ControllerConfiguration, previous:Controller):void
     {
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       

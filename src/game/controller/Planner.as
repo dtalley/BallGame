@@ -3,25 +3,32 @@ package src.game.controller
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.geom.Point;
+  import flash.utils.ByteArray;
   import src.game.Ball;
   import src.game.Board;
   import src.game.ButtonTree;
+  import src.game.event.ControllerEvent;
   import src.game.gadget.Dispurse;
   import src.game.gadget.Gadget;
   import src.game.gadget.Rally;
   import src.game.gadget.Redirect;
   import src.game.gadget.Reverse;
   import src.game.Panel;
+  import src.game.PuzzleConfiguration;
   import src.game.Tile;
+  import src.game.utils.AssetManager;
   import src.game.utils.ConfigManager;
   import starling.events.Touch;
   import starling.events.TouchEvent;
 	/**
    * ...
    * @author 
+   * 
    */
   public class Planner extends EventDispatcher implements Controller
   {
+    private static var s_gameAssetsLoaded:Boolean = false;
+    
     private var m_board:Board;
     private var m_panel:Panel;
     
@@ -46,14 +53,12 @@ package src.game.controller
     
     private var m_moved:Boolean = false;
     
-    public function Planner(board:Board, panel:Panel) 
-    {
-      m_board = board;
-      m_panel = panel;
-      
-      m_tiles = m_board.tiles;
-      m_balls = m_board.balls;
-      
+    private var m_puzzleToLoad:String = null;
+    
+    private var m_puzzleConfiguration:PuzzleConfiguration = new PuzzleConfiguration();
+    
+    public function Planner() 
+    {      
       m_tree = new ButtonTree("root", 0);      
       m_reverse = m_tree.createChild("reverse", ButtonTree.SELECTABLE);
       m_dispurse = m_tree.createChild("dispurse", ButtonTree.SELECTABLE);
@@ -75,7 +80,7 @@ package src.game.controller
     
     private function editActivated(e:Event):void
     {
-      this.dispatchEvent(new Event("startEditor"));
+      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "editor"));
     }
     
     public function Update(elapsed:Number):void
@@ -96,7 +101,25 @@ package src.game.controller
       }
     }
     
-    public function Activate(previous:Controller):void
+    public function Activate(configuration:ControllerConfiguration, previous:Controller):void
+    {
+      if (configuration is PlannerConfiguration)
+      {
+        var plannerConfiguration:PlannerConfiguration = configuration as PlannerConfiguration;
+        
+        m_puzzleConfiguration.copy(plannerConfiguration.puzzleConfiguration);
+        
+        m_board = plannerConfiguration.board;
+        m_panel = plannerConfiguration.panel;
+        
+        m_tiles = m_board.tiles;
+        m_balls = m_board.balls;
+        
+        activateBoard();
+      }
+    }
+    
+    private function activateBoard():void
     {
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       
@@ -169,7 +192,7 @@ package src.game.controller
         }
         else if ( m_holdTile )
         {
-          if ( m_holdTile != tile && !tile.hasGadget && !tile.hasBall )
+          if ( m_holdTile != tile && !tile.hasGadget && !tile.hasBall && tile.isOpen && tile.isValid )
           {
             m_holding = false;
             m_holdTile.gadget.tile = tile;
@@ -203,7 +226,7 @@ package src.game.controller
             return;
           }
           
-          this.dispatchEvent(new Event("startSimulator"));
+          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "simulator", new SimulatorConfiguration(m_board, m_panel)));
           return;
         }
         

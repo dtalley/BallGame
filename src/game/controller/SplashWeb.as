@@ -33,11 +33,11 @@ package src.game.controller
       
     }
     
-    public function Activate(previous:Controller):void
+    public function Activate(configuration:ControllerConfiguration, previous:Controller):void
     {
       AssetManager.LoadBundle([
-        "assets/textures/hd/game.png",
-        "assets/textures/hd/game.json"
+        "assets/textures/hd/main.png",
+        "assets/textures/hd/main.json"
       ], null, this.Ready);
     }
     

@@ -21,7 +21,7 @@ package src.game
     
     public function Panel() 
     {
-      m_background = new Scale9Image(TextureManager.Get("atlas", "panel_background"), new Rectangle(3, 3, 3, 3));
+      m_background = new Scale9Image(TextureManager.Get("game", "panel_background"), new Rectangle(3, 3, 3, 3));
       this.addChild(m_background);
       m_background.width = ConfigManager.TILE_SIZE + 8;
       m_background.height = ( ConfigManager.TILE_SIZE * Board.rows ) + 8;

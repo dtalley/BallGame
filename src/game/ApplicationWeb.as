@@ -3,8 +3,11 @@ package src.game
   import flash.display.Bitmap;
   import flash.display.Loader;
   import flash.utils.ByteArray;
+  import src.game.controller.ControllerConfiguration;
   import src.game.controller.Main;
+  import src.game.controller.PuzzleLoader;
   import src.game.controller.SplashWeb;
+  import src.game.event.ControllerEvent;
   import src.game.utils.ConfigManager;
   import starling.textures.Texture;
   import flash.geom.Rectangle;
@@ -33,6 +36,7 @@ package src.game
     
     private var m_splash:SplashWeb;
     private var m_main:Main;
+    private var m_puzzleLoader:PuzzleLoader;
     private var m_planner:Planner;
     private var m_simulator:Simulator;
     
@@ -48,13 +52,35 @@ package src.game
       m_splash = new SplashWeb();
       m_splash.addEventListener("assetsLoaded", this.configureMainAtlas);
       
-      this.setController(m_splash);
+      this.setController(m_splash, null);
       
       this.addEventListener(starling.events.Event.ENTER_FRAME, this.Update);
     }
     
     private function configureMainAtlas(e:Event = null):void
     {      
+      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/main.png") as Loader;
+      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/main.png");
+      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("main", mainTexture);
+      
+      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/main.json") as ByteArray;
+      var json:String = atlasJson.readUTFBytes(atlasJson.length);
+      
+      var obj:Array = JSON.parse(json) as Array;
+      obj.forEach(function(spr:Array, a:*, b:*):void {
+        mainAtlas.addRegion(spr[0], new Rectangle(spr[1], spr[2], spr[3], spr[4]));
+      });
+      
+      m_main = new Main();
+      m_puzzleLoader = new PuzzleLoader();
+      m_puzzleLoader.addEventListener("assetsLoaded", this.configureGameAtlas);
+      m_planner = new Planner();
+      m_simulator = new Simulator();
+      this.setController(m_main, null);
+    }
+    
+    private function configureGameAtlas(e:Event = null):void
+    {
       var mainLoader:Loader = AssetManager.Get("assets/textures/hd/game.png") as Loader;
       var mainTexture:Texture = TextureManager.Get("assets/textures/hd/game.png");
       var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("game", mainTexture);
@@ -66,39 +92,9 @@ package src.game
       obj.forEach(function(spr:Array, a:*, b:*):void {
         mainAtlas.addRegion(spr[0], new Rectangle(spr[1], spr[2], spr[3], spr[4]));
       });
-      
-      this.createBoard();
     }
     
-    private function createBoard():void
-    {
-      m_board = new Board();
-      this.addChild(m_board);
-      m_board.x = ( stage.stageWidth / 2 ) - ( ( Board.columns * ConfigManager.TILE_SIZE ) / 2 );
-      m_board.y = ( stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 );
-      
-      if ( m_board.x < m_board.y )
-      {
-        m_board.y = m_board.x;
-      }
-      else
-      {
-        m_board.x = m_board.y;
-      }
-      
-      m_panel = new Panel();
-      this.addChild(m_panel);
-      m_panel.x = stage.stageWidth - m_panel.width - m_board.x;
-      m_panel.y = m_board.y - 4;
-      
-      m_main = new Main(m_board, m_panel);
-      m_planner = new Planner(m_board, m_panel);
-      m_simulator = new Simulator(m_board, m_panel);
-      
-      this.setController(m_main);
-    }
-    
-    private function setController(controller:Controller):void
+    private function setController(controller:Controller, configuration:ControllerConfiguration):void
     {
       var previous:Controller = null;
       
@@ -106,28 +102,36 @@ package src.game
       {
         previous = m_controller;
         
-        m_controller.removeEventListener("startPlanner", this.startPlanner);
-        m_controller.removeEventListener("startSimulator", this.startSimulator);
+        m_controller.removeEventListener(ControllerEvent.CHANGE_CONTROLLER, this.changeController);
         
         m_controller.Deactivate();
       }
       
       m_controller = controller;
       
-      m_controller.addEventListener("startPlanner", this.startPlanner);
-      m_controller.addEventListener("startSimulator", this.startSimulator);
+      m_controller.addEventListener(ControllerEvent.CHANGE_CONTROLLER, this.changeController);
       
-      m_controller.Activate(previous);
+      m_controller.Activate(configuration, previous);
     }
     
-    private function startPlanner(e:Event):void
+    private function changeController(e:ControllerEvent):void
     {
-      this.setController(m_planner);
-    }
-    
-    private function startSimulator(e:Event):void
-    {
-      this.setController(m_simulator);
+      if (e.name == "main")
+      {
+        this.setController(m_main, e.configuration);
+      }
+      else if (e.name == "puzzleLoader")
+      {
+        this.setController(m_puzzleLoader, e.configuration);
+      }
+      else if (e.name == "planner")
+      {
+        this.setController(m_planner, e.configuration);
+      }
+      else if (e.name == "simulator")
+      {
+        this.setController(m_simulator, e.configuration);
+      }
     }
     
     public function Update(e:EnterFrameEvent):void

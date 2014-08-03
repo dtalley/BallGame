@@ -23,13 +23,13 @@ module.exports = function(grunt) {
         }
       },
       
-      prehd: {
+      mainhd: {
         options: {
           // Path to the template for generating metafile:
           template: './sprites/hd.tpl',
 
           // Destination metafile:
-          destCss: './assets/textures/hd/pre.json',
+          destCss: './assets/textures/hd/main.json',
           
           baseUrl: './',
           
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
         },
         
         files: {
-          './assets/textures/hd/pre.png': ['./sprites/hd/pre/*.png']
+          './assets/textures/hd/main.png': ['./sprites/hd/main/*.png']
         }
       }
     }

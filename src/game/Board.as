@@ -249,6 +249,7 @@ package src.game
           var gclass:Class = GadgetManager.s_gadgets[gid];
           var gadget:Gadget = new gclass(d2);
           gadget.tile = tile;
+          tile.lockDefault();
         }
         
         var btype:uint = d1 & 0x7;
@@ -257,6 +258,7 @@ package src.game
           var ball:Ball = new Ball(btype);
           addBall(ball);
           ball.tile = tile;
+          tile.lockDefault();
         }
         
         tile.configure(true, true);
