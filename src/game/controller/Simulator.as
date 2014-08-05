@@ -9,7 +9,9 @@ package src.game.controller
   import src.game.event.BoardEvent;
   import src.game.event.ControllerEvent;
   import src.game.Panel;
+  import src.game.PuzzleConfiguration;
   import src.game.Tile;
+  import src.game.utils.ConfigManager;
   import starling.events.Touch;
   import starling.events.TouchEvent;
 	/**
@@ -20,6 +22,8 @@ package src.game.controller
   {
     private var m_board:Board;
     private var m_panel:Panel;
+    
+    private var m_puzzleConfiguration:PuzzleConfiguration = new PuzzleConfiguration();
     
     private var m_tree:ButtonTree;
     
@@ -47,7 +51,14 @@ package src.game.controller
     
     private function boardComplete(e:BoardEvent):void
     {
-      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
+      if (ConfigManager.ENVIRONMENT == ConfigManager.ENVIRONMENT_EDITOR)
+      {
+        this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
+      }
+      else
+      {
+        this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleResult", new PuzzleResultConfiguration(m_board, m_panel, m_puzzleConfiguration)));
+      }
     }
     
     private function resetActivated(e:Event):void
@@ -98,6 +109,8 @@ package src.game.controller
         
         m_board = simulatorConfiguration.board;  
         m_panel = simulatorConfiguration.panel;
+        
+        m_puzzleConfiguration.copy(simulatorConfiguration.configuration);
         
         m_balls = m_board.balls;
         m_board.addEventListener(BoardEvent.BOARD_COMPLETE, this.boardComplete);

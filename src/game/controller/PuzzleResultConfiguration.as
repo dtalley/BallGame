@@ -7,13 +7,13 @@ package src.game.controller
    * ...
    * @author 
    */
-  public class SimulatorConfiguration extends ControllerConfiguration 
+  public class PuzzleResultConfiguration extends ControllerConfiguration 
   {
     private var m_board:Board;
     private var m_panel:Panel;
     private var m_configuration:PuzzleConfiguration;
    
-    public function SimulatorConfiguration(board:Board, panel:Panel, configuration:PuzzleConfiguration) 
+    public function PuzzleResultConfiguration(board:Board, panel:Panel, configuration:PuzzleConfiguration) 
     {
       super();
 			

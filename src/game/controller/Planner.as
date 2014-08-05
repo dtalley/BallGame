@@ -18,6 +18,7 @@ package src.game.controller
   import src.game.Tile;
   import src.game.utils.AssetManager;
   import src.game.utils.ConfigManager;
+  import starling.core.Starling;
   import starling.events.Touch;
   import starling.events.TouchEvent;
 	/**
@@ -121,6 +122,9 @@ package src.game.controller
     
     private function activateBoard():void
     {
+      Starling.current.stage.addChild(m_board);
+      Starling.current.stage.addChild(m_panel);
+      
       m_board.addEventListener(TouchEvent.TOUCH, this.boardTouched);
       
       m_panel.loadTree(m_tree);
@@ -226,7 +230,7 @@ package src.game.controller
             return;
           }
           
-          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "simulator", new SimulatorConfiguration(m_board, m_panel)));
+          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "simulator", new SimulatorConfiguration(m_board, m_panel, m_puzzleConfiguration)));
           return;
         }
         

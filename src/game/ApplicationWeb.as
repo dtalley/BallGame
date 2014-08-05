@@ -6,6 +6,7 @@ package src.game
   import src.game.controller.ControllerConfiguration;
   import src.game.controller.Main;
   import src.game.controller.PuzzleLoader;
+  import src.game.controller.PuzzleResult;
   import src.game.controller.SplashWeb;
   import src.game.event.ControllerEvent;
   import src.game.utils.ConfigManager;
@@ -39,6 +40,7 @@ package src.game
     private var m_puzzleLoader:PuzzleLoader;
     private var m_planner:Planner;
     private var m_simulator:Simulator;
+    private var m_puzzleResult:PuzzleResult;
     
     public function ApplicationWeb() 
     {      
@@ -76,6 +78,7 @@ package src.game
       m_puzzleLoader.addEventListener("assetsLoaded", this.configureGameAtlas);
       m_planner = new Planner();
       m_simulator = new Simulator();
+      m_puzzleResult = new PuzzleResult();
       this.setController(m_main, null);
     }
     
@@ -131,6 +134,10 @@ package src.game
       else if (e.name == "simulator")
       {
         this.setController(m_simulator, e.configuration);
+      }
+      else if (e.name == "puzzleResult")
+      {
+        this.setController(m_puzzleResult, e.configuration);
       }
     }
     

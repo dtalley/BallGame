@@ -13,6 +13,7 @@ package src.game.controller
   import src.game.gadget.Redirect;
   import src.game.gadget.Reverse;
   import src.game.Panel;
+  import src.game.PuzzleList;
   import src.game.Tile;
   import src.game.utils.ConfigManager;
   import src.game.utils.TextureManager;
@@ -29,6 +30,8 @@ package src.game.controller
   {
     private var m_play:Image;
     
+    private var m_list:PuzzleList;
+    
     public function Main() 
     {
       m_play = new Image(TextureManager.Get("main", "button_play"));
@@ -37,13 +40,19 @@ package src.game.controller
       m_play.y = Math.round(Starling.current.stage.stageHeight / 2 - m_play.height / 2);
       m_play.smoothing = TextureSmoothing.NONE;
       m_play.addEventListener(TouchEvent.TOUCH, this.playTouched);
+      
+      m_list = new PuzzleList("../files/puzzles/d01.l01.bpf");
+      
+      m_list
+        .addChild(new PuzzleList("../files/puzzles/d01.l02.bpf"))
+        .addChild(new PuzzleList("../files/puzzles/d01.l03.bpf"));
     }
     
     private function playTouched(e:TouchEvent):void
     {
       if (e.touches[0].phase == "ended")
       {
-        this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleLoader", new PuzzleLoaderConfiguration("../files/puzzles/d01.l01.bpf")));
+        this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleLoader", new PuzzleLoaderConfiguration(m_list)));
       }
     }
     
@@ -54,7 +63,7 @@ package src.game.controller
     
     public function Activate(configuration:ControllerConfiguration, previous:Controller):void
     {
-      
+      Starling.current.stage.addChild(m_play);
     }
     
     public function Deactivate():void

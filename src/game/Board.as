@@ -124,8 +124,21 @@ package src.game
       {
         if ( m_tiles[i].isValid )
         {
+          while (m_tiles[i].hasBall)
+          {
+            m_tiles[i].removeBallAt(0);
+          }
+          
+          if (m_tiles[i].hasGadget)
+          {
+            m_tiles[i].gadget.removeFromTile();
+          }
+          
           m_tiles[i].close();
           m_tiles[i].open();
+          
+          m_tiles[i].lockDefault();
+          m_tiles[i].lockPlan();
         }
       }
     }

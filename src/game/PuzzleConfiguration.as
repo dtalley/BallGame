@@ -14,7 +14,9 @@ package src.game
    */
   public class PuzzleConfiguration 
   {
+    private var m_puzzle:PuzzleList;
     private var m_gadgets:Vector.<Boolean>;
+    
     public function PuzzleConfiguration() 
     {
       m_gadgets = new Vector.<Boolean>();
@@ -23,6 +25,16 @@ package src.game
       {
         m_gadgets.push(false);
       }
+    }
+    
+    public function set puzzle(val:PuzzleList):void
+    {
+      m_puzzle = val;
+    }
+    
+    public function get puzzle():PuzzleList
+    {
+      return m_puzzle;
     }
     
     public function copy(other:PuzzleConfiguration):void
@@ -36,12 +48,15 @@ package src.game
       {
         m_gadgets[i] = other.m_gadgets[i];
       }
+      
+      m_puzzle = other.puzzle;
     }
     
     public function load(bytes:ByteArray):Boolean
     {
       if (bytes.bytesAvailable < 20)
       {
+        trace("Not enough bytes available in ByteArray");
         return false;
       }
       

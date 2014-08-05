@@ -15,6 +15,7 @@ package src.game.controller
   import src.game.gadget.Reverse;
   import src.game.Panel;
   import src.game.PuzzleConfiguration;
+  import src.game.PuzzleList;
   import src.game.Tile;
   import src.game.utils.AssetManager;
   import src.game.utils.ConfigManager;
@@ -30,10 +31,10 @@ package src.game.controller
   {
     private static var s_gameAssetsLoaded:Boolean = false;
     
-    private static var s_board:Board;
-    private static var s_panel:Panel;
+    private static var s_board:Board = null;
+    private static var s_panel:Panel = null;
     
-    private var m_puzzleToLoad:String = null;
+    private var m_puzzleToLoad:PuzzleList = null;
     
     private var m_puzzleConfiguration:PuzzleConfiguration = new PuzzleConfiguration();
     
@@ -88,20 +89,25 @@ package src.game.controller
         this.createBoard();
       }
       
-      if (AssetManager.Get(m_puzzleToLoad))
+      if (AssetManager.Get(m_puzzleToLoad.asset))
       {
         puzzleLoaded();
       }
       else
       {
         AssetManager.LoadBundle([
-          m_puzzleToLoad
+          m_puzzleToLoad.asset
         ], null, this.puzzleLoaded);
       }
     }
     
     private function createBoard():void
     {
+      if (s_board)
+      {
+        return;
+      }
+      
       s_board = new Board();
       Starling.current.stage.addChild(s_board);
       s_board.x = ( Starling.current.stage.stageWidth / 2 ) - ( ( Board.columns * ConfigManager.TILE_SIZE ) / 2 );
@@ -130,11 +136,15 @@ package src.game.controller
         return;
       }
       
-      var puzzle:ByteArray = AssetManager.Get(m_puzzleToLoad);
+      m_puzzleConfiguration.puzzle = m_puzzleToLoad;
+      trace(m_puzzleToLoad.asset);
+      var puzzle:ByteArray = AssetManager.Get(m_puzzleToLoad.asset);
       m_puzzleToLoad = null;
       
+      puzzle.position = 0;
       if ( m_puzzleConfiguration.load(puzzle) )
       {
+        s_board.clearTiles();
         s_board.load(puzzle);
       }
       
