@@ -19,8 +19,15 @@ package src.game
     private var m_tiles:Vector.<Tile> = new Vector.<Tile>();
     private var m_balls:Vector.<Ball> = new Vector.<Ball>();
     
-    public static const rows:int = 8;
-    public static const columns:int = 11;
+    public static function get rows():int
+    {
+      return ConfigManager.ROWS;
+    }
+    
+    public static function get columns():int
+    {
+      return ConfigManager.COLUMNS;
+    }
     
     public var m_ballCount:uint = 0;
     public var m_tileCount:uint = 0;
@@ -48,6 +55,11 @@ package src.game
           if ( i > 0 - padding )
           {
             tile.top = this.m_tiles[this.m_tiles.length - ( columns + ( padding * 2 ) )];
+          }
+          
+          if (tile.isOpen)
+          {
+            tile.close();
           }
           
           this.m_tiles.push(tile);
@@ -134,11 +146,12 @@ package src.game
             m_tiles[i].gadget.removeFromTile();
           }
           
-          m_tiles[i].close();
           m_tiles[i].open();
           
           m_tiles[i].lockDefault();
           m_tiles[i].lockPlan();
+          
+          m_tiles[i].close();
         }
       }
     }
@@ -176,17 +189,51 @@ package src.game
     
     public function save(fs:ByteArray):void
     {
-      fs.writeByte(rows);
-      fs.writeByte(columns);
+      var saveRows:uint = 0;
+      var saveColumns:uint = 0;
       
       var tileCount:uint = m_tiles.length;
       for ( var i:int = 0; i < tileCount; i++ )
       {
         var tile:Tile = m_tiles[i];
+        if (tile.isValid)
+        {
+          var column:uint = Math.floor(tile.x / ConfigManager.TILE_SIZE) + 1;
+          var row:uint = Math.floor(tile.y / ConfigManager.TILE_SIZE) + 1;
+          if (tile.isValid && tile.isOpen)
+          {
+            if (column > saveColumns)
+            {
+              saveColumns = column;
+            }
+            
+            if (row > saveRows)
+            {
+              saveRows = row;
+            }
+          }
+        }
+      }
+      
+      fs.writeByte(saveRows);
+      fs.writeByte(saveColumns);
+      
+      for ( i = 0; i < tileCount; i++ )
+      {
+        tile = m_tiles[i];
         if (!tile.isValid)
         {
           continue;
         }
+        
+        column = Math.floor(tile.x / ConfigManager.TILE_SIZE);
+        row = Math.floor(tile.y / ConfigManager.TILE_SIZE);
+        
+        if (column >= saveColumns || row >= saveRows)
+        {
+          continue;
+        }
+        
         fs.writeByte(tile.defaultWallConfiguration.compress());
         
         var d0:uint = 0;
@@ -222,7 +269,7 @@ package src.game
       var frows:int = fs.readByte();
       var fcolumns:int = fs.readByte();
       
-      if (frows != rows || fcolumns != columns)
+      if (frows > rows || fcolumns > columns)
       {
         trace("Puzzle file is incompatible with current board");
         return;
@@ -234,8 +281,18 @@ package src.game
         var tile:Tile = m_tiles[i];
         if (!tile.isValid)
         {
+          tile.configure(true);
           continue;
         }
+        
+        var column:uint = Math.floor(tile.x / ConfigManager.TILE_SIZE);
+        var row:uint = Math.floor(tile.y / ConfigManager.TILE_SIZE);
+        if (column >= fcolumns || row >= frows)
+        {
+          tile.configure(true);
+          continue;
+        }
+        
         tile.clearGadget();
         tile.clearPlan();
         while (tile.hasBall)
@@ -244,14 +301,15 @@ package src.game
         }
         
         var wc:uint = fs.readByte();
-        tile.defaultWallConfiguration.decompress(wc);
         
         var d0:uint = fs.readByte();
         
-        if ( ( d0 & ( 1 << 7 ) ) == 0 )
+        if ( ( d0 & ( 1 << 7 ) ) != 0 )
         {
-          tile.close();
+          tile.open(true);
         }
+        
+        tile.defaultWallConfiguration.decompress(wc);
         
         var d1:uint = fs.readByte() & 0xFF;
         var d2:uint = fs.readShort() & 0xFFFF;
@@ -262,7 +320,6 @@ package src.game
           var gclass:Class = GadgetManager.s_gadgets[gid];
           var gadget:Gadget = new gclass(d2);
           gadget.tile = tile;
-          tile.lockDefault();
         }
         
         var btype:uint = d1 & 0x7;
@@ -271,8 +328,9 @@ package src.game
           var ball:Ball = new Ball(btype);
           addBall(ball);
           ball.tile = tile;
-          tile.lockDefault();
         }
+        
+        tile.lockDefault();
         
         tile.configure(true, true);
       }

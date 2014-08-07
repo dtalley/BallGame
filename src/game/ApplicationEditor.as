@@ -69,7 +69,7 @@ package src.game
     {
       m_board = new Board();
       this.addChild(m_board);
-      m_board.x = ( stage.stageWidth / 2 ) - ( ( Board.columns * ConfigManager.TILE_SIZE ) / 2 );
+      m_board.x = Math.round(ConfigManager.TILE_SIZE / 4);
       m_board.y = ( stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 );
       
       if ( m_board.x < m_board.y )
@@ -86,6 +86,8 @@ package src.game
       m_panel.x = stage.stageWidth - m_panel.width - m_board.x;
       m_panel.y = m_board.y - 4;
       
+      stageResized();
+      
       m_planner = new Planner();
       m_simulator = new Simulator();
       m_editor = new Editor(m_board, m_panel);
@@ -93,6 +95,15 @@ package src.game
       this.setController(m_editor, null);
       
       this.addEventListener(Event.ENTER_FRAME, this.Update);
+      
+      stage.addEventListener(Event.RESIZE, stageResized);
+    }
+    
+    private function stageResized(e:Event = null):void
+    {
+      m_board.y = Math.round(( stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 ));
+      m_panel.x = stage.stageWidth - m_panel.width - m_board.x;
+      m_panel.y = m_board.y - 4;
     }
     
     private function setController(controller:Controller, configuration:ControllerConfiguration):void

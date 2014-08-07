@@ -13,6 +13,9 @@ package src.game.utils
     private static var s_padding:uint;
     private static var s_environment:uint;
     
+    private static var s_rows:int;
+    private static var s_columns:int;
+    
     public static function load():void
     {
       var configJson:ByteArray = null;
@@ -36,6 +39,9 @@ package src.game.utils
       
       s_tileSize = parseInt(obj.tileSize);
       s_padding = parseInt(obj.padding);
+      
+      s_rows = parseInt(obj.rows);
+      s_columns = parseInt(obj.columns);
     }
     
     public static function get TILE_SIZE():uint
@@ -61,6 +67,16 @@ package src.game.utils
       }
       
       s_environment = val;
+    }
+    
+    public static function get ROWS():int
+    {
+      return s_rows;
+    }
+    
+    public static function get COLUMNS():int
+    {
+      return s_columns;
     }
     
     public static const ENVIRONMENT_EDITOR:uint = 1;

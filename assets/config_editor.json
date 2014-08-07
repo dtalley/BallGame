@@ -1,4 +1,6 @@
 {
   "tileSize": 74,
-  "padding": 5
+  "padding": 4,
+  "rows": 12,
+  "columns": 11
 }

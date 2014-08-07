@@ -34,7 +34,6 @@ package src.game
     private var m_right:Tile = null;
     
     private var m_defaultWallConfiguration:WallConfiguration = new WallConfiguration();
-    private var m_overrideWallConfiguration:WallConfiguration = new WallConfiguration();
     private var m_wallConfiguration:WallConfiguration = new WallConfiguration();
     
     private var m_baseImage:Image;
@@ -64,7 +63,7 @@ package src.game
       }
       else
       {
-        blank = TextureManager.Get("game", "grid_closed");
+        blank = TextureManager.Get("game", "grid_invalid");
       }
       
       if ( blank )
@@ -321,7 +320,6 @@ package src.game
         m_baseImage.texture = TextureManager.Get("game", "grid_closed");
         
         m_defaultWallConfiguration.clear();
-        m_overrideWallConfiguration.clear();
         
         if ( m_left && m_left.isOpen ) m_left.placeRightWall();
         else if ( m_left ) m_left.configure(true);
@@ -337,7 +335,7 @@ package src.game
       }
     }
     
-    public function open():void
+    public function open(skipValidation:Boolean = false):void
     {
       if ( !m_valid )
       {
@@ -350,19 +348,21 @@ package src.game
         m_baseImage.texture = TextureManager.Get("game", "grid_open");
         
         m_defaultWallConfiguration.clear();
-        m_overrideWallConfiguration.clear();
         
-        if ( m_left && m_left.isOpen && m_left.isValid ) m_left.removeRightWall();
-        else if ( m_left ) placeLeftWall();
-        
-        if ( m_top && m_top.isOpen && m_top.isValid ) m_top.removeBottomWall();
-        else if ( m_top ) placeTopWall();
-        
-        if ( m_right && m_right.isOpen && m_right.isValid ) m_right.removeLeftWall();
-        else if ( m_right ) placeRightWall();
-        
-        if ( m_bottom && m_bottom.isOpen && m_bottom.isValid ) m_bottom.removeTopWall();
-        else if ( m_bottom ) placeBottomWall();
+        if (!skipValidation)
+        {
+          if ( m_left && m_left.isOpen && m_left.isValid ) m_left.removeRightWall();
+          else if ( m_left ) placeLeftWall();
+          
+          if ( m_top && m_top.isOpen && m_top.isValid ) m_top.removeBottomWall();
+          else if ( m_top ) placeTopWall();
+          
+          if ( m_right && m_right.isOpen && m_right.isValid ) m_right.removeLeftWall();
+          else if ( m_right ) placeRightWall();
+          
+          if ( m_bottom && m_bottom.isOpen && m_bottom.isValid ) m_bottom.removeTopWall();
+          else if ( m_bottom ) placeBottomWall();
+        }
       }
     }
     
@@ -373,7 +373,7 @@ package src.game
     
     public function get wallConfiguration():WallConfiguration
     {
-      if ( m_defaultWallConfiguration.isStale || m_overrideWallConfiguration.isStale )
+      if ( m_defaultWallConfiguration.isStale )
       {
         m_wallConfiguration.top = m_defaultWallConfiguration.top;
         m_wallConfiguration.right = m_defaultWallConfiguration.right;
@@ -386,7 +386,6 @@ package src.game
         m_wallConfiguration.bl = m_defaultWallConfiguration.bl;
         
         m_defaultWallConfiguration.lock();
-        m_overrideWallConfiguration.lock();
       }
       
       return m_wallConfiguration;
@@ -409,17 +408,17 @@ package src.game
           }
         }
         
-        if ( m_left ) m_left.configure();
-        if ( m_top ) m_top.configure();
-        if ( m_right ) m_right.configure();
-        if ( m_bottom ) m_bottom.configure();
+        if ( m_left ) m_left.configure(m_valid && !m_left.isValid);
+        if ( m_top ) m_top.configure(m_valid && !m_top.isValid);
+        if ( m_right ) m_right.configure(m_valid && !m_right.isValid);
+        if ( m_bottom ) m_bottom.configure(m_valid && !m_bottom.isValid);
       }
       else
       {
         this.wallConfiguration.lock();
       }
       
-      var wallCount:uint = m_wallConfiguration.count;
+      var wallCount:uint = this.wallConfiguration.count;
       
       m_wallImage.texture = m_baseImage.texture;
       
@@ -474,7 +473,7 @@ package src.game
           
           if ( m_wallConfiguration.top && m_wallConfiguration.left )
           {
-            if ( ( m_right && m_right.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.right ) )
+            if ((m_right && m_right.wallConfiguration.bottom) || (m_bottom && m_bottom.wallConfiguration.right))
             {
               m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
@@ -489,7 +488,7 @@ package src.game
           }
           else if ( m_wallConfiguration.top && m_wallConfiguration.right )
           {
-            if ( ( m_left && m_left.wallConfiguration.bottom ) || ( m_bottom && m_bottom.wallConfiguration.left ) )
+            if ((m_left && m_left.wallConfiguration.bottom) || (m_bottom && m_bottom.wallConfiguration.left))
             {
               m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
@@ -504,7 +503,7 @@ package src.game
           }
           else if ( m_wallConfiguration.bottom && m_wallConfiguration.right )
           {
-            if ( ( m_left && m_left.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.left ) )
+            if ((m_left && m_left.wallConfiguration.top) || (m_top && m_top.wallConfiguration.left))
             {
               m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";
@@ -519,7 +518,7 @@ package src.game
           }
           else if ( m_wallConfiguration.bottom && m_wallConfiguration.left )
           {
-            if ( ( m_right && m_right.wallConfiguration.top ) || ( m_top && m_top.wallConfiguration.right ) )
+            if ((m_right && m_right.wallConfiguration.top) || (m_top && m_top.wallConfiguration.right))
             {
               m_wallImage.texture = TextureManager.Get("game", "wall_w2a_c1_r0");
               cornerName = "wall_w2a_c1_r1";

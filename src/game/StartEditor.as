@@ -3,6 +3,7 @@ package src.game
 	import flash.display.Sprite;
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
+  import flash.events.Event;
   import src.game.utils.AssetManager;
   import src.game.utils.ConfigManager;
   
@@ -20,6 +21,7 @@ package src.game
     {
       stage.scaleMode = StageScaleMode.NO_SCALE;
       stage.align = StageAlign.TOP_LEFT;
+      stage.addEventListener(Event.RESIZE, stageResized);
       
       m_starling = new Starling(ApplicationEditor, stage);
       m_starling.start();
@@ -29,9 +31,18 @@ package src.game
       AssetManager.Initialize();      
       AssetManager.LoadBundle([
         "assets/config_editor.json",
-        "assets/textures/hd/atlas.png",
-        "assets/textures/hd/atlas.json"
+        "assets/textures/hd/game.png",
+        "assets/textures/hd/game.json"
        ], null, this.Ready);
+       
+       stageResized(null);
+    }
+    
+    private function stageResized(e:Event):void
+    {
+      m_starling.stage.stageWidth = stage.stageWidth;
+      m_starling.stage.stageHeight = stage.stageHeight;
+      m_starling.viewPort.setTo(0, 0, stage.stageWidth, stage.stageHeight);
     }
     
     private function Ready(err:Error):void

@@ -7,7 +7,7 @@
     <movie path="bin\BallGameEditor.swf" />
     <movie fps="60" />
     <movie width="960" />
-    <movie height="640" />
+    <movie height="960" />
     <movie version="3" />
     <movie minorVersion="7" />
     <movie platform="AIR" />

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <application xmlns="http://ns.adobe.com/air/application/3.7">
   <id>com.orionark.games.BallGame</id>
-  <filename>BallGame</filename>
+  <filename>BallGameEditor</filename>
   <name>
     <text xml:lang="en">Ball Game</text>
   </name>
@@ -14,11 +14,11 @@
   <supportedProfiles>desktop extendedDesktop</supportedProfiles>
   <initialWindow>
     <title>Ball Game</title>
-    <content>BallGame.swf</content>
+    <content>BallGameEditor.swf</content>
     <systemChrome>standard</systemChrome>
     <transparent>false</transparent>
     <visible>true</visible>
-    <resizable>false</resizable>
+    <resizable>true</resizable>
     <minimizable>false</minimizable>
     <maximizable>false</maximizable>
     <renderMode>direct</renderMode>
