@@ -11,6 +11,7 @@ package src.game.gadget
   public class Gadget extends Sprite 
   {        
     private var m_tile:Tile = null;
+    private var m_persistent:Boolean = false;
     public function Gadget() 
     {
       
@@ -93,6 +94,16 @@ package src.game.gadget
     public function get id():uint
     {
       return 0;
+    }
+    
+    public function persist():void
+    {
+      m_persistent = true;
+    }
+    
+    public function get isPersistent():Boolean
+    {
+      return m_persistent;
     }
   }
 

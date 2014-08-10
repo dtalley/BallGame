@@ -45,7 +45,9 @@ package src.game.controller
       
       m_list
         .addChild(new PuzzleList("../files/puzzles/d01.l02.bpf"))
-        .addChild(new PuzzleList("../files/puzzles/d01.l03.bpf"));
+        .addChild(new PuzzleList("../files/puzzles/d01.l03.bpf"))
+        .addChild(new PuzzleList("../files/puzzles/d01.l04.bpf"))
+        .addChild(new PuzzleList("../files/puzzles/d01.l05.bpf"));
     }
     
     private function playTouched(e:TouchEvent):void

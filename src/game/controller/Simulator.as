@@ -35,6 +35,8 @@ package src.game.controller
     
     private var m_reset:ButtonTree;
     
+    private var m_noMovementTimer:Number = 0;
+    
     public function Simulator() 
     {      
       m_tree = new ButtonTree("root", 0);      
@@ -92,12 +94,13 @@ package src.game.controller
       }
       
       var percent:Number = m_accumulator / m_speed;
+      var movement:Boolean = false;
       
       for ( i = 0; i < m_board.ballCount; i++ )
       {
         if (m_balls[i].tile)
         {
-          m_balls[i].moveFromSourceToTarget(percent);
+          movement = m_balls[i].moveFromSourceToTarget(percent) || movement;
         }
       }
       
@@ -107,9 +110,24 @@ package src.game.controller
         {
           if (m_balls[i].intersects(m_balls[j]))
           {
-            this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleResult", new PuzzleResultConfiguration(m_board, m_panel, m_puzzleConfiguration, true)));
+            m_balls[i].removeFromTile();
+            m_balls[j].removeFromTile();
           }
         }
+      }
+      
+      if (!movement)
+      {
+        m_noMovementTimer += elapsed;
+        
+        if (m_noMovementTimer > 3)
+        {
+          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleResult", new PuzzleResultConfiguration(m_board, m_panel, m_puzzleConfiguration, true)));
+        }
+      }
+      else
+      {
+        m_noMovementTimer = 0;
       }
     }
     
@@ -135,6 +153,8 @@ package src.game.controller
         {
           m_balls[i].calculateTarget();
         }
+        
+        m_noMovementTimer = 0;
       }
     }
     

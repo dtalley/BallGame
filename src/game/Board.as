@@ -319,6 +319,7 @@ package src.game
         {
           var gclass:Class = GadgetManager.s_gadgets[gid];
           var gadget:Gadget = new gclass(d2);
+          gadget.persist();
           gadget.tile = tile;
         }
         

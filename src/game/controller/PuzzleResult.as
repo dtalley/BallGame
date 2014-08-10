@@ -47,7 +47,7 @@ package src.game.controller
         
         if (specificConfiguration.failure)
         {
-          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleLoader", new PuzzleLoaderConfiguration(m_puzzleConfiguration.puzzle)));
+          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
           return;
         }
         

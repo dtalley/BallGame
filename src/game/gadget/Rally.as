@@ -36,7 +36,7 @@ package src.game.gadget
         current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 0;
           curball.direction.y = 1;
-          curball.calculateTarget();
+          curball.calculateTarget(false);
         });
         current = current.top;
       }
@@ -47,7 +47,7 @@ package src.game.gadget
         current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 1;
           curball.direction.y = 0;
-          curball.calculateTarget();
+          curball.calculateTarget(false);
         });
         current = current.left;
       }
@@ -58,7 +58,7 @@ package src.game.gadget
         current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = -1;
           curball.direction.y = 0;
-          curball.calculateTarget();
+          curball.calculateTarget(false);
         });
         current = current.right;
       }
@@ -69,7 +69,7 @@ package src.game.gadget
         current.modifyBalls(function(curball:Ball):void {
           curball.direction.x = 0;
           curball.direction.y = -1;
-          curball.calculateTarget();
+          curball.calculateTarget(false);
         });
         current = current.bottom;
       }

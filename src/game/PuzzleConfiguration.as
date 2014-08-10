@@ -7,6 +7,7 @@ package src.game
   import src.game.gadget.GadgetManager;
   import src.game.gadget.Phase;
   import src.game.gadget.Rally;
+  import src.game.gadget.Redirect;
   import src.game.gadget.Reverse;
 	/**
    * ...
@@ -52,6 +53,37 @@ package src.game
       m_puzzle = other.puzzle;
     }
     
+    public function save(bytes:ByteArray):Boolean
+    {
+      //Header
+      bytes.writeMultiByte("bpfh", "us-ascii");
+      
+      //Version (1.0)
+      bytes.writeByte(1);
+      bytes.writeByte(0);
+      
+      var d1:uint = 0;
+      var d2:uint = 0;
+      
+      for ( var i:uint = 0; i < m_gadgets.length; i++ )
+      {
+        var value:uint = m_gadgets[i] ? 1 : 0;
+        if ( i >= 32 )
+        {
+          d2 |= ( value << ( i - 32 ) );
+        }
+        else
+        {
+          d1 |= ( value << i );
+        }
+      }
+      
+      bytes.writeUnsignedInt(d1);
+      bytes.writeUnsignedInt(d2);
+      
+      return true;
+    }
+    
     public function load(bytes:ByteArray):Boolean
     {
       if (bytes.bytesAvailable < 20)
@@ -79,6 +111,7 @@ package src.game
       loadGadgetStatus(Phase, d1, d2);
       loadGadgetStatus(Combine, d1, d2);
       loadGadgetStatus(Expand, d1, d2);
+      loadGadgetStatus(Redirect, d1, d2);
       
       return true;
     }
@@ -96,10 +129,53 @@ package src.game
         test = d1 & ( 1 << id );
       }
       
-      m_gadgets[id] = false;
-      if (test)
+      m_gadgets[id] = test > 0;
+    }
+    
+    public function enable(type:Class):void
+    {
+      var idx:int = GadgetManager.s_gadgets.indexOf(type);
+      if (idx >= 0)
       {
-        m_gadgets[id] = true;
+        m_gadgets[idx] = true;
+      }
+    }
+    
+    public function disable(type:Class):void
+    {
+      var idx:int = GadgetManager.s_gadgets.indexOf(type);
+      if (idx >= 0)
+      {
+        m_gadgets[idx] = false;
+      }
+    }
+    
+    public function isEnabled(type:Class):Boolean
+    {
+      var idx:int = GadgetManager.s_gadgets.indexOf(type);
+      if (idx >= 0)
+      {
+        return m_gadgets[idx];
+      }
+      return false;
+    }
+    
+    public function configureFromButtonTree(tree:ButtonTree, type:Class):void
+    {
+      var idx:int = GadgetManager.s_gadgets.indexOf(type);
+      if (idx < 0)
+      {
+        return;
+      }
+      m_gadgets[idx] = tree.isToggled;
+    }
+    
+    public function configureButtonTree(tree:ButtonTree, type:Class):void
+    {
+      tree.clearToggle();
+      if (isEnabled(type))
+      {
+        tree.setToggle();
       }
     }
   }

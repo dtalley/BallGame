@@ -21,6 +21,7 @@ package src.game.controller
   import src.game.gadget.Rally;
   import src.game.gadget.Reverse;
   import src.game.Panel;
+  import src.game.PuzzleConfiguration;
   import src.game.Tile;
   import src.game.utils.ConfigManager;
   import src.game.utils.TextureManager;
@@ -75,6 +76,8 @@ package src.game.controller
     private var m_accumulator:Number = 0;
     
     private var m_tiles:Vector.<Tile>;
+    
+    private var m_puzzleConfiguration:PuzzleConfiguration = new PuzzleConfiguration();
     
     public function Editor(board:Board, panel:Panel) 
     {
@@ -146,25 +149,18 @@ package src.game.controller
       }
       fs.close();
       
-      var header:String = bytes.readMultiByte(4, "us-ascii");
-      if (header != "bpfh")
+      if (!m_puzzleConfiguration.load(bytes))
       {
-        trace("Invalid puzzle file, header was '" + header + "'");
+        throw new Error("Invalid puzzle file loaded.");
         return;
       }
       
-      var jv:uint = bytes.readByte(); //Major version
-      var nv:uint = bytes.readByte(); //Minor version
-      
-      var d1:uint = bytes.readUnsignedInt();
-      var d2:uint = bytes.readUnsignedInt();
-      
-      loadGadgetStatus(m_reverseEdit, Reverse, d1, d2);
-      loadGadgetStatus(m_rallyEdit, Rally, d1, d2);
-      loadGadgetStatus(m_dispurseEdit, Dispurse, d1, d2);
-      loadGadgetStatus(m_phaseEdit, Phase, d1, d2);
-      loadGadgetStatus(m_combineEdit, Combine, d1, d2);
-      loadGadgetStatus(m_expandEdit, Expand, d1, d2);
+      m_puzzleConfiguration.configureButtonTree(m_reverseEdit, Reverse);
+      m_puzzleConfiguration.configureButtonTree(m_rallyEdit, Rally);
+      m_puzzleConfiguration.configureButtonTree(m_dispurseEdit, Dispurse);
+      m_puzzleConfiguration.configureButtonTree(m_phaseEdit, Phase);
+      m_puzzleConfiguration.configureButtonTree(m_combineEdit, Combine);
+      m_puzzleConfiguration.configureButtonTree(m_expandEdit, Expand);
       
       m_board.load(bytes);
     }
@@ -180,25 +176,9 @@ package src.game.controller
     {
       var bytes:ByteArray = new ByteArray();
       
-      //Header
-      bytes.writeMultiByte("bpfh", "us-ascii");
+      copyGadgetConfiguration();
       
-      //Version (1.0)
-      bytes.writeByte(1);
-      bytes.writeByte(0);
-      
-      var config:GadgetConfiguration = new GadgetConfiguration();
-      
-      saveGadgetStatus(m_reverseEdit.isToggled, Reverse, config);
-      saveGadgetStatus(m_rallyEdit.isToggled, Rally, config);
-      saveGadgetStatus(m_dispurseEdit.isToggled, Dispurse, config);
-      saveGadgetStatus(m_phaseEdit.isToggled, Phase, config);
-      saveGadgetStatus(m_combineEdit.isToggled, Combine, config);
-      saveGadgetStatus(m_expandEdit.isToggled, Expand, config);
-      
-      bytes.writeUnsignedInt(config.d1);
-      bytes.writeUnsignedInt(config.d2);
-      
+      m_puzzleConfiguration.save(bytes);      
       m_board.save(bytes);
       
       var file:File = e.currentTarget as File;
@@ -208,46 +188,14 @@ package src.game.controller
       fs.close();
     }
     
-    private function saveGadgetStatus(isSet:Boolean, type:Class, config:GadgetConfiguration):void
+    private function copyGadgetConfiguration():void
     {
-      if (isSet)
-      {
-        var id:uint = GadgetManager.s_gadgets.indexOf(type);
-        var flag:uint = 0;
-        if (id > 32)
-        {
-          flag = ( 1 << ( id - 32 ) );
-          config.d2 |= flag;
-        }
-        else
-        {
-          flag = ( 1 << id );
-          config.d1 |= flag;
-        }
-      }
-    }
-    
-    private function loadGadgetStatus(tree:ButtonTree, type:Class, d1:uint, d2:uint):void
-    {
-      var id:uint = GadgetManager.s_gadgets.indexOf(type);
-      var test:uint = 0;
-      if (id > 32)
-      {
-        test = d2 & ( 1 << ( id - 32 ) );
-      }
-      else
-      {
-        test = d1 & ( 1 << id );
-      }
-      
-      if (test)
-      {
-        tree.setToggle();
-      }
-      else
-      {
-        tree.clearToggle();
-      }
+      m_puzzleConfiguration.configureFromButtonTree(m_reverseEdit, Reverse);
+      m_puzzleConfiguration.configureFromButtonTree(m_rallyEdit, Rally);
+      m_puzzleConfiguration.configureFromButtonTree(m_dispurseEdit, Dispurse);
+      m_puzzleConfiguration.configureFromButtonTree(m_phaseEdit, Phase);
+      m_puzzleConfiguration.configureFromButtonTree(m_combineEdit, Combine);
+      m_puzzleConfiguration.configureFromButtonTree(m_expandEdit, Expand);
     }
     
     private function clearActivated(e:Event):void
@@ -264,7 +212,8 @@ package src.game.controller
     
     private function playActivated(e:Event):void
     {
-      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel)));
+      copyGadgetConfiguration();
+      this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "planner", new PlannerConfiguration(m_board, m_panel, m_puzzleConfiguration)));
     }
     
     public function Update(elapsed:Number):void
@@ -734,15 +683,4 @@ package src.game.controller
     }
   }
 
-}
-
-class GadgetConfiguration
-{
-  public var d1:uint = 0;
-  public var d2:uint = 0;
-  
-  public function GadgetConfiguration()
-  {
-    
-  }
 }

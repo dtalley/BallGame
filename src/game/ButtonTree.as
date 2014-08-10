@@ -44,13 +44,55 @@ package src.game
       m_parent = parent;
     }
     
-    public function createChild(name:String, mode:uint = NORMAL, selected:Boolean = false):ButtonTree
+    public function clearChildren():void
     {
-      var child:ButtonTree = new ButtonTree(name, mode, this);
+      while (m_children.length)
+      {
+        removeChild(m_children[0]);
+      }
+    }
+    
+    public function removeChild(child:ButtonTree):void
+    {
+      var idx:int = m_children.indexOf(child);
+      if (idx < 0)
+      {
+        return;
+      }
+      
+      m_children.splice(idx, 1);
+      m_count--;
+      if (child.mode & ButtonTree.SELECTABLE)
+      {
+        child.removeEventListener("selected", this.childSelected);
+        
+        if (m_defaultSelection == child)
+        {
+          m_defaultSelection = null;
+        }
+      }
+      else if ( child.mode == ButtonTree.PUSH )
+      {
+        child.removeEventListener("push", this.pushTree);
+      }
+      else if ( child.mode == ButtonTree.POP )
+      {
+        child.removeEventListener("pop", this.popTree);
+      }
+    }
+    
+    public function addChild(child:ButtonTree, selected:Boolean = false ):void
+    {
+      var idx:int = m_children.indexOf(child);
+      if (idx >= 0)
+      {
+        return;
+      }
+      
       m_children.push(child);
       m_count++;
       
-      if ( mode & ButtonTree.SELECTABLE )
+      if ( child.mode & ButtonTree.SELECTABLE )
       {
         child.addEventListener("selected", this.childSelected);
         
@@ -59,14 +101,21 @@ package src.game
           m_defaultSelection = child;
         }
       }
-      else if ( mode == ButtonTree.PUSH )
+      else if ( child.mode == ButtonTree.PUSH )
       {
         child.addEventListener("push", this.pushTree);
       }
-      else if ( mode == ButtonTree.POP )
+      else if ( child.mode == ButtonTree.POP )
       {
         child.addEventListener("pop", this.popTree);
       }
+    }
+    
+    public function createChild(name:String, mode:uint = NORMAL, selected:Boolean = false):ButtonTree
+    {
+      var child:ButtonTree = new ButtonTree(name, mode, this);
+      
+      addChild(child, selected);
       
       return child;
     }

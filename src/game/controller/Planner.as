@@ -45,6 +45,7 @@ package src.game.controller
     private var m_reverse:ButtonTree;
     private var m_dispurse:ButtonTree;
     private var m_rally:ButtonTree;
+    private var m_redirect:ButtonTree;
     
     private var m_placingGadget:Gadget;
     
@@ -61,22 +62,13 @@ package src.game.controller
     public function Planner() 
     {      
       m_tree = new ButtonTree("root", 0);      
-      m_reverse = m_tree.createChild("reverse", ButtonTree.SELECTABLE);
-      m_dispurse = m_tree.createChild("dispurse", ButtonTree.SELECTABLE);
-      m_rally = m_tree.createChild("rally", ButtonTree.SELECTABLE);
-      m_tree.createChild("", ButtonTree.BLANK);
-      m_tree.createChild("", ButtonTree.BLANK);
-      m_tree.createChild("", ButtonTree.BLANK);
-      m_tree.createChild("", ButtonTree.BLANK);
-      if (ConfigManager.ENVIRONMENT == ConfigManager.ENVIRONMENT_EDITOR)
-      {
-        m_edit = m_tree.createChild("edit", ButtonTree.NORMAL);
-        m_edit.addEventListener("activated", this.editActivated);
-      }
-      else
-      {
-        m_tree.createChild("", ButtonTree.BLANK);
-      }
+      m_reverse = new ButtonTree("reverse", ButtonTree.SELECTABLE);
+      m_dispurse = new ButtonTree("dispurse", ButtonTree.SELECTABLE);
+      m_rally = new ButtonTree("rally", ButtonTree.SELECTABLE);
+      m_redirect = new ButtonTree("redirect", ButtonTree.SELECTABLE);
+       
+      m_edit = new ButtonTree("edit", ButtonTree.NORMAL);
+      m_edit.addEventListener("activated", this.editActivated);
     }
     
     private function editActivated(e:Event):void
@@ -95,7 +87,7 @@ package src.game.controller
       
       if ( m_accumulator >= 1 )
       {
-        if ( m_holdTile.hasGadget && !m_holdTile.hasDefaultGadget && m_holdTile.gadget.isRemoveable )
+        if ( m_holdTile.hasGadget && !m_holdTile.hasDefaultGadget && !m_holdTile.gadget.isPersistent )
         {
           m_holdTile.clearGadget();
         }
@@ -115,6 +107,18 @@ package src.game.controller
         
         m_tiles = m_board.tiles;
         m_balls = m_board.balls;
+        
+        m_tree.clearChildren();
+        
+        if (ConfigManager.ENVIRONMENT == ConfigManager.ENVIRONMENT_EDITOR)
+        {
+          m_tree.addChild(m_edit);
+        }
+        
+        if (m_puzzleConfiguration.isEnabled(Reverse)) m_tree.addChild(m_reverse);        
+        if (m_puzzleConfiguration.isEnabled(Rally)) m_tree.addChild(m_rally);
+        if (m_puzzleConfiguration.isEnabled(Dispurse)) m_tree.addChild(m_dispurse);
+        if (m_puzzleConfiguration.isEnabled(Redirect)) m_tree.addChild(m_redirect);
         
         activateBoard();
       }
@@ -196,7 +200,7 @@ package src.game.controller
         }
         else if ( m_holdTile )
         {
-          if ( m_holdTile != tile && !tile.hasGadget && !tile.hasBall && tile.isOpen && tile.isValid )
+          if ( m_holdTile != tile && !tile.hasGadget && !tile.hasBall && tile.isOpen && tile.isValid && m_holdTile.hasGadget )
           {
             m_holding = false;
             m_holdTile.gadget.tile = tile;
@@ -255,6 +259,11 @@ package src.game.controller
       else if ( m_rally.isSelected )
       {
         placeGadget(tile, position, phase, Rally);
+        return;
+      }
+      else if ( m_redirect.isSelected )
+      {
+        placeGadget(tile, position, phase, Redirect);
         return;
       }
     }

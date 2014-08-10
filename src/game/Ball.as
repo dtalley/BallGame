@@ -109,7 +109,7 @@ package src.game
       }
     }
     
-    public function calculateTarget():void
+    public function calculateTarget(useGadgets:Boolean = true):void
     {
       m_target = null;
       
@@ -118,7 +118,7 @@ package src.game
         return;
       }
       
-      if ( m_direction.length > 0 && m_tile.gadget )
+      if ( m_direction.length > 0 && m_tile.gadget && useGadgets )
       {
         m_tile.gadget.act(this, 1);
       }
@@ -138,13 +138,13 @@ package src.game
           {
             m_direction.y = -1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           else if ( m_tile.wallConfiguration.tl )
           {
             m_direction.y = 1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           
           return;
@@ -162,13 +162,13 @@ package src.game
           {
             m_direction.y = -1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           else if ( m_tile.wallConfiguration.tr )
           {
             m_direction.y = 1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           
           return;
@@ -186,13 +186,13 @@ package src.game
           {
             m_direction.x = -1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           else if ( m_tile.wallConfiguration.tl )
           {
             m_direction.x = 1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           
           return;
@@ -210,13 +210,13 @@ package src.game
           {
             m_direction.x = -1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           else if ( m_tile.wallConfiguration.bl )
           {
             m_direction.x = 1;
             
-            this.calculateTarget();
+            this.calculateTarget(useGadgets);
           }
           
           return;
@@ -231,18 +231,18 @@ package src.game
       }
     }
     
-    public function moveFromSourceToTarget(percent:Number):void
+    public function moveFromSourceToTarget(percent:Number):Boolean
     {
       if ( m_tile == null )
       {
-        return;
+        return false;
       }
       
       if ( m_target == null )
       {
         this.x = m_tile.x;
         this.y = m_tile.y;
-        return;
+        return false;
       }
       
       var xDiff:Number = ( m_target.x - m_tile.x ) * percent;
@@ -255,11 +255,18 @@ package src.game
       {
         m_tile.gadget.act(this, percent);
       }
+      
+      return (xDiff > 0 || yDiff > 0);
     }
     
     public function intersects(other:Ball):Boolean
     {
       if (!this.visible || !other.visible)
+      {
+        return false;
+      }
+      
+      if (other.type != m_type)
       {
         return false;
       }

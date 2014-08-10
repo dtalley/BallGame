@@ -99,6 +99,7 @@ package src.game
       if ( m_gadget )
       {
         m_defaultGadget = m_gadget;
+        m_gadget.persist();
       }
     }
     
