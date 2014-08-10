@@ -2,5 +2,6 @@
   "tileSize": 74,
   "padding": 4,
   "rows": 12,
-  "columns": 11
+  "columns": 11,
+  "set": "hd"
 }

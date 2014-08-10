@@ -8,7 +8,7 @@ module.exports = function(grunt) {
       gamehd: {
         options: {
           // Path to the template for generating metafile:
-          template: './sprites/hd.tpl',
+          template: './sprites/atlas.tpl',
 
           // Destination metafile:
           destCss: './assets/textures/hd/game.json',
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
       mainhd: {
         options: {
           // Path to the template for generating metafile:
-          template: './sprites/hd.tpl',
+          template: './sprites/atlas.tpl',
 
           // Destination metafile:
           destCss: './assets/textures/hd/main.json',
@@ -38,6 +38,24 @@ module.exports = function(grunt) {
         
         files: {
           './assets/textures/hd/main.png': ['./sprites/hd/main/*.png']
+        }
+      },
+      
+      gamesd: {
+        options: {
+          // Path to the template for generating metafile:
+          template: './sprites/atlas.tpl',
+
+          // Destination metafile:
+          destCss: './assets/textures/sd/game.json',
+          
+          baseUrl: './',
+          
+          powerOfTwo: true
+        },
+        
+        files: {
+          './assets/textures/sd/game.png': ['./sprites/sd/game/*.png']
         }
       }
     }

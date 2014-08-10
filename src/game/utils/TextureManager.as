@@ -2,6 +2,8 @@ package src.game.utils
 {
   import flash.display.Bitmap;
   import flash.display.BitmapData;
+  import flash.display.Loader;
+  import flash.geom.Rectangle;
   import flash.utils.ByteArray;
   import starling.textures.Texture;
   import flash.utils.Dictionary;
@@ -33,6 +35,20 @@ package src.game.utils
       var atlas:TextureAtlas = new TextureAtlas(texture);
       s_textures[name] = atlas;
       return atlas;
+    }
+    
+    public static function ConfigureAtlas(atlasName:String, assetName:String):void
+    {
+      var texture:Texture = TextureManager.Get("assets/textures/" + ConfigManager.TEXTURE_SET + "/" + assetName + ".png");
+      var atlas:TextureAtlas = TextureManager.CreateAtlas(atlasName, texture);
+      
+      var atlasJson:ByteArray = AssetManager.Get("assets/textures/" + ConfigManager.TEXTURE_SET + "/" + assetName + ".json") as ByteArray;
+      var json:String = atlasJson.readUTFBytes(atlasJson.length);
+      
+      var obj:Array = JSON.parse(json) as Array;
+      obj.forEach(function(spr:Array, a:*, b:*):void {
+        atlas.addRegion(spr[0], new Rectangle(spr[1], spr[2], spr[3], spr[4]));
+      });
     }
     
     public static function Get(name:String, subName:String = null):Texture

@@ -13,6 +13,8 @@ package src.game.utils
     private static var s_padding:uint;
     private static var s_environment:uint;
     
+    private static var s_set:String;
+    
     private static var s_rows:int;
     private static var s_columns:int;
     
@@ -42,6 +44,13 @@ package src.game.utils
       
       s_rows = parseInt(obj.rows);
       s_columns = parseInt(obj.columns);
+      
+      s_set = obj.set;
+    }
+    
+    public static function get TEXTURE_SET():String
+    {
+      return s_set;
     }
     
     public static function get TILE_SIZE():uint

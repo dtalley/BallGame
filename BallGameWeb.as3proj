@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="bin\BallGameWeb.swf" />
     <movie fps="60" />
-    <movie width="960" />
-    <movie height="640" />
+    <movie width="800" />
+    <movie height="660" />
     <movie version="14" />
     <movie minorVersion="0" />
     <movie platform="Flash Player" />

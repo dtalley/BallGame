@@ -12,6 +12,7 @@ package src.game.controller
   import src.game.PuzzleConfiguration;
   import src.game.Tile;
   import src.game.utils.ConfigManager;
+  import src.game.utils.MathX;
   import starling.events.Touch;
   import starling.events.TouchEvent;
 	/**
@@ -97,6 +98,17 @@ package src.game.controller
         if (m_balls[i].tile)
         {
           m_balls[i].moveFromSourceToTarget(percent);
+        }
+      }
+      
+      for ( i = 0; i < m_board.ballCount; i++ )
+      {
+        for ( var j:int = i + 1; j < m_board.ballCount; j++ )
+        {
+          if (m_balls[i].intersects(m_balls[j]))
+          {
+            this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleResult", new PuzzleResultConfiguration(m_board, m_panel, m_puzzleConfiguration, true)));
+          }
         }
       }
     }

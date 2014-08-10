@@ -1,6 +1,8 @@
 package src.game 
 {
   import flash.geom.Point;
+  import src.game.utils.ConfigManager;
+  import src.game.utils.MathX;
   import src.game.utils.TextureManager;
   import starling.display.Image;
 	import starling.display.Sprite;
@@ -253,6 +255,21 @@ package src.game
       {
         m_tile.gadget.act(this, percent);
       }
+    }
+    
+    public function intersects(other:Ball):Boolean
+    {
+      if (!this.visible || !other.visible)
+      {
+        return false;
+      }
+      
+      var distance:Number = MathX.distance(this.x, this.y, other.x, other.y);
+      if (distance < ConfigManager.TILE_SIZE / 2)
+      {
+        return true;
+      }
+      return false;
     }
     
     public function set target(val:Tile):void

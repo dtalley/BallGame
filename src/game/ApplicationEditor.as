@@ -42,25 +42,13 @@ package src.game
     }
     
     public function start():void
-    {
-      ConfigManager.load();
-      
+    {      
       this.configureMainAtlas();
     }
     
     private function configureMainAtlas():void
     {      
-      var mainLoader:Loader = AssetManager.Get("assets/textures/hd/game.png") as Loader;
-      var mainTexture:Texture = TextureManager.Get("assets/textures/hd/game.png");
-      var mainAtlas:TextureAtlas = TextureManager.CreateAtlas("game", mainTexture);
-      
-      var atlasJson:ByteArray = AssetManager.Get("assets/textures/hd/game.json") as ByteArray;
-      var json:String = atlasJson.readUTFBytes(atlasJson.length);
-      
-      var obj:Array = JSON.parse(json) as Array;
-      obj.forEach(function(spr:Array, a:*, b:*):void {
-        mainAtlas.addRegion(spr[0], new Rectangle(spr[1], spr[2], spr[3], spr[4]));
-      });
+      TextureManager.ConfigureAtlas("game", "game");
       
       this.createBoard();
     }

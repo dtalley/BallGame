@@ -44,8 +44,14 @@ package src.game.controller
         m_panel = specificConfiguration.panel;
         
         m_puzzleConfiguration.copy(specificConfiguration.configuration);
-        m_puzzleConfiguration.puzzle = m_puzzleConfiguration.puzzle.getChild();
         
+        if (specificConfiguration.failure)
+        {
+          this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleLoader", new PuzzleLoaderConfiguration(m_puzzleConfiguration.puzzle)));
+          return;
+        }
+        
+        m_puzzleConfiguration.puzzle = m_puzzleConfiguration.puzzle.getChild();
         if (m_puzzleConfiguration.puzzle)
         {
           this.dispatchEvent(new ControllerEvent(ControllerEvent.CHANGE_CONTROLLER, "puzzleLoader", new PuzzleLoaderConfiguration(m_puzzleConfiguration.puzzle)));

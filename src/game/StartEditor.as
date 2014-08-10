@@ -30,10 +30,8 @@ package src.game
       
       AssetManager.Initialize();      
       AssetManager.LoadBundle([
-        "assets/config_editor.json",
-        "assets/textures/hd/game.png",
-        "assets/textures/hd/game.json"
-       ], null, this.Ready);
+        "assets/config_editor.json"
+      ], null, this.LoadConfig);
        
        stageResized(null);
     }
@@ -43,6 +41,22 @@ package src.game
       m_starling.stage.stageWidth = stage.stageWidth;
       m_starling.stage.stageHeight = stage.stageHeight;
       m_starling.viewPort.setTo(0, 0, stage.stageWidth, stage.stageHeight);
+    }
+    
+    private function LoadConfig(err:Error):void
+    {
+      if ( err )
+      {
+        throw err;
+        return;
+      }
+      
+      ConfigManager.load();
+      
+      AssetManager.LoadBundle([
+        "assets/textures/" + ConfigManager.TEXTURE_SET + "/game.json",
+        "assets/textures/" + ConfigManager.TEXTURE_SET + "/game.png"
+      ], null, this.Ready);
     }
     
     private function Ready(err:Error):void

@@ -110,17 +110,8 @@ package src.game.controller
       
       s_board = new Board();
       Starling.current.stage.addChild(s_board);
-      s_board.x = ( Starling.current.stage.stageWidth / 2 ) - ( ( Board.columns * ConfigManager.TILE_SIZE ) / 2 );
-      s_board.y = ( Starling.current.stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 );
-      
-      if ( s_board.x < s_board.y )
-      {
-        s_board.y = s_board.x;
-      }
-      else
-      {
-        s_board.x = s_board.y;
-      }
+      s_board.x = Math.round(ConfigManager.TILE_SIZE / 4);
+      s_board.y = Math.round(( Starling.current.stage.stageHeight / 2 ) - ( ( Board.rows * ConfigManager.TILE_SIZE ) / 2 ));
       
       s_panel = new Panel();
       Starling.current.stage.addChild(s_panel);
